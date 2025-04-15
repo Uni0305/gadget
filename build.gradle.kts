@@ -125,6 +125,31 @@ java {
 	withSourcesJar()
 }
 
+abstract class WriteVersionFileTask : DefaultTask() {
+	@get:Input
+	abstract val version: Property<String>
+
+	@get:OutputFile
+	abstract val versionFile: RegularFileProperty
+
+	init {
+		versionFile.convention { temporaryDir.resolve("VERSION") }
+	}
+
+	@TaskAction
+	fun run() {
+		versionFile.get().asFile.writeText(version.get())
+	}
+}
+
+val writeVersionFile = tasks.register<WriteVersionFileTask>("writeVersionFile") {
+	version.set(project.version.toString())
+}
+
+tasks.assemble {
+	dependsOn(writeVersionFile)
+}
+
 tasks.jar {
 	from("LICENSE") {
 		rename { "${it}_${base.archivesName.get()}" }
