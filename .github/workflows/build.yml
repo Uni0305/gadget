@@ -4,7 +4,10 @@
 # against bad commits.
 
 name: build
-on: push
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
   build:
