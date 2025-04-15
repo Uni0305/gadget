@@ -4,10 +4,7 @@
 # against bad commits.
 
 name: build
-on:
-  push:
-    tags:
-      - '*'
+on: push
 
 jobs:
   build:
@@ -41,7 +38,7 @@ jobs:
           name: Artifacts
           path: build/libs/
       - name: publish release
-        if: ${{ runner.os == 'Linux' && matrix.java == '21'  && github.ref_type == 'tag'}}
+        if: ${{ runner.os == 'Linux' && matrix.java == '21'}}
         uses: softprops/action-gh-release@v2
         with:
           files: |
