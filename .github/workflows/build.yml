@@ -47,4 +47,4 @@ jobs:
         with:
           files: |
             build/libs/**
-          name: ${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}
