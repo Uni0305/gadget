@@ -13,7 +13,7 @@ java {
 }
 
 base {
-	archivesName = properties["archives_base_name"]!!.toString()
+	archivesName = property("archives_base_name").toString()
 }
 
 version = "${property("mod_version")}+${property("minecraft_base_version")}"
@@ -127,7 +127,7 @@ java {
 
 tasks.jar {
 	from("LICENSE") {
-		rename { "${it}_${property("archivesBaseName")}" }
+		rename { "${it}_${base.archivesName.get()}" }
 	}
 }
 
