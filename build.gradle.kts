@@ -1,5 +1,5 @@
 plugins {
-	id("fabric-loom") version "1.9-SNAPSHOT"
+	id("fabric-loom") version "1.10-SNAPSHOT"
 	id("maven-publish")
 }
 
@@ -73,7 +73,7 @@ dependencies {
 
 	modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-fabric:${property("rei_version")}")
 
-	modCompileOnly("org.quiltmc:quiltflower:${property("quiltflower")}")
+	modCompileOnly("org.vineflower:vineflower:${property("vineflower")}")
 
 	modLocalRuntime("com.terraformersmc:modmenu:${property("modmenu_version")}")
 

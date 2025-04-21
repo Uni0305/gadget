@@ -104,7 +104,6 @@ public class UIInspector {
 
         OwoUIDrawContext ctx = OwoUIDrawContext.of(ctxIn);
 
-        RenderSystem.disableDepthTest();
         var client = MinecraftClient.getInstance();
         var textRenderer = client.textRenderer;
 
@@ -161,7 +160,5 @@ public class UIInspector {
             }
             ctx.getMatrices().translate(0, 0, -1000);
         }
-
-        RenderSystem.enableDepthTest();
     }
 }

@@ -73,7 +73,7 @@ public class ProgressToastImpl implements Toast, ProgressToast {
             progressBox.horizontalSizing(Sizing.fixed((int) (value * 140 / followingTotal)));
         }
 
-        this.adapter.render(context, 0, 0, client.getRenderTickCounter().getTickDelta(false));
+        this.adapter.render(context, 0, 0, client.getRenderTickCounter().getTickProgress(false));
     }
 
     @Override

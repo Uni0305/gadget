@@ -6,9 +6,9 @@ import io.wispforest.gadget.Gadget;
 import io.wispforest.gadget.util.NetworkUtil;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.network.NetworkSide;
-import net.minecraft.network.NetworkState;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.state.NetworkState;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;

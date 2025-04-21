@@ -1,6 +1,7 @@
 package io.wispforest.gadget.client.dump;
 
 import io.wispforest.gadget.Gadget;
+import io.wispforest.gadget.client.GadgetSurfaces;
 import io.wispforest.gadget.client.gui.BasedSliderComponent;
 import io.wispforest.gadget.client.gui.BasedVerticalFlowLayout;
 import io.wispforest.gadget.client.gui.EventEaterWrapper;
@@ -122,7 +123,7 @@ public class OpenDumpScreen extends BaseOwoScreen<FlowLayout> {
         rootComponent
             .horizontalAlignment(HorizontalAlignment.CENTER)
             .verticalAlignment(VerticalAlignment.CENTER)
-            .surface(Surface.VANILLA_TRANSLUCENT);
+            .surface(GadgetSurfaces.OPTIONS_BACKGROUND);
 
         this.main = new BasedVerticalFlowLayout(Sizing.fill(100), Sizing.content());
         ScrollContainer<FlowLayout> scroll = Containers.verticalScroll(Sizing.fill(95), Sizing.fill(90), this.main)
@@ -178,7 +179,7 @@ public class OpenDumpScreen extends BaseOwoScreen<FlowLayout> {
             public void drawTooltip(OwoUIDrawContext ctx, int mouseX, int mouseY, float partialTicks, float delta) {
                 frameNumber++;
 
-                if (!this.shouldDrawTooltip(mouseX, mouseY)) return;
+                if (!this.isInBoundingBox(mouseX, mouseY)) return;
 
                 if (frameNumber > 9) {
                     frameNumber = 0;

@@ -1,13 +1,13 @@
 package io.wispforest.gadget.mixin;
 
 import com.mojang.serialization.DataResult;
-import net.minecraft.util.PathUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
+import net.minecraft.util.path.PathUtil;
 
 @Mixin(PathUtil.class)
 public class PathUtilMixin {

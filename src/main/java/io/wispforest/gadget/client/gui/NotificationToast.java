@@ -53,7 +53,7 @@ public class NotificationToast implements Toast {
 
     @Override
     public void draw(DrawContext context, TextRenderer textRenderer, long startTime) {
-        this.adapter.render(context, 0, 0, client.getRenderTickCounter().getTickDelta(false));
+        this.adapter.render(context, 0, 0, client.getRenderTickCounter().getTickProgress(false));
     }
 
     @Override

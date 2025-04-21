@@ -25,21 +25,23 @@ import net.minecraft.nbt.NbtShort;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.nbt.NbtType;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Predicate;
 
 public class KeyAdderWidget extends FlowLayout {
-    private final NbtDataIsland island;
-    private final NbtPath parentPath;
-    private final NbtType<?> type;
-    private final Predicate<String> nameVerifier;
+    private final @NotNull NbtDataIsland island;
+    private final @NotNull NbtPath parentPath;
+    private final @NotNull NbtType<?> type;
+    private final @NotNull Predicate<String> nameVerifier;
 
-    private final TextBoxComponent nameField;
-    private final TextBoxComponent valueField;
+    private final @NotNull TextBoxComponent nameField;
+    private final @Nullable TextBoxComponent valueField;
     private boolean wasMounted = false;
 
-    public KeyAdderWidget(NbtDataIsland island, NbtPath parentPath, NbtType<?> type, Predicate<String> nameVerifier) {
+    public KeyAdderWidget(@NotNull NbtDataIsland island, @NotNull NbtPath parentPath, @NotNull NbtType<?> type, @NotNull Predicate<String> nameVerifier) {
         super(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL);
 
         this.island = island;

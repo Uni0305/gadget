@@ -10,24 +10,7 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Insets;
 import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.nbt.AbstractNbtList;
-import net.minecraft.nbt.AbstractNbtNumber;
-import net.minecraft.nbt.NbtByte;
-import net.minecraft.nbt.NbtByteArray;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtDouble;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtEnd;
-import net.minecraft.nbt.NbtFloat;
-import net.minecraft.nbt.NbtInt;
-import net.minecraft.nbt.NbtIntArray;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtLong;
-import net.minecraft.nbt.NbtLongArray;
-import net.minecraft.nbt.NbtShort;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.nbt.NbtType;
-import net.minecraft.nbt.NbtTypes;
+import net.minecraft.nbt.*;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -151,7 +134,7 @@ public class NbtDataIsland extends FlowLayout {
 
                 row.child(plusLabel);
             }
-        } else if (element instanceof AbstractNbtList<?> list) {
+        } else if (element instanceof AbstractNbtList list) {
             widgetData.subContainer = new SubObjectContainer(unused -> {}, unused -> {});
 
             row.child(widgetData.subContainer.getSpinnyBoi());
@@ -159,7 +142,7 @@ public class NbtDataIsland extends FlowLayout {
             full.child(widgetData.subContainer);
 
             for (int i = 0; i < list.size(); i++) {
-                NbtElement sub = list.get(i);
+                NbtElement sub = list.method_10534(i);
                 var subPath = path.then(String.valueOf(i));
 
                 makeComponent(subPath, sub);
@@ -185,8 +168,9 @@ public class NbtDataIsland extends FlowLayout {
                                 (int) (plusLabel.y() + mouseY),
                                 type -> widgetData.subContainer.child(new KeyAdderWidget(this, path, type, nameVerifier)));
                         } else {
-                            widgetData.subContainer.child(
-                                new KeyAdderWidget(this, path, NbtTypes.byId(list.getHeldType()), nameVerifier));
+                            // TODO reimplement after 1.21.5
+//                            widgetData.subContainer.child(
+//                                new KeyAdderWidget(this, path, null, nameVerifier));
                         }
                     } else if (list instanceof NbtByteArray) {
                         widgetData.subContainer.child(
@@ -221,7 +205,7 @@ public class NbtDataIsland extends FlowLayout {
         var copyLabel = Components.label(Text.literal("C"));
         copyLabel.tooltip(Text.translatable("chat.copy.click"));
         GuiUtil.semiButton(copyLabel, () -> {
-             MinecraftClient.getInstance().keyboard.setClipboard(path.follow(data).asString());
+             MinecraftClient.getInstance().keyboard.setClipboard(path.follow(data).asString().orElseThrow());
         });
         row.child(copyLabel);
 

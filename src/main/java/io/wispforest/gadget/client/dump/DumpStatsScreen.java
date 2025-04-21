@@ -1,5 +1,6 @@
 package io.wispforest.gadget.client.dump;
 
+import io.wispforest.gadget.client.GadgetSurfaces;
 import io.wispforest.gadget.client.gui.BasedVerticalFlowLayout;
 import io.wispforest.gadget.client.gui.SidebarBuilder;
 import io.wispforest.gadget.dump.read.PacketDumpReader;
@@ -11,13 +12,7 @@ import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.ScrollContainer;
-import io.wispforest.owo.ui.core.Color;
-import io.wispforest.owo.ui.core.HorizontalAlignment;
-import io.wispforest.owo.ui.core.Insets;
-import io.wispforest.owo.ui.core.OwoUIAdapter;
-import io.wispforest.owo.ui.core.Sizing;
-import io.wispforest.owo.ui.core.Surface;
-import io.wispforest.owo.ui.core.VerticalAlignment;
+import io.wispforest.owo.ui.core.*;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -61,7 +56,7 @@ public class DumpStatsScreen extends BaseOwoScreen<FlowLayout> {
         rootComponent
             .horizontalAlignment(HorizontalAlignment.CENTER)
             .verticalAlignment(VerticalAlignment.CENTER)
-            .surface(Surface.VANILLA_TRANSLUCENT);
+            .surface(GadgetSurfaces.OPTIONS_BACKGROUND);
 
         FlowLayout main = new BasedVerticalFlowLayout(Sizing.fill(100), Sizing.content());
         ScrollContainer<FlowLayout> scroll = Containers.verticalScroll(Sizing.fill(95), Sizing.fill(100), main)

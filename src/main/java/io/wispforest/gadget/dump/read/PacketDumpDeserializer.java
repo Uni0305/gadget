@@ -11,7 +11,6 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.NetworkPhase;
 import net.minecraft.network.NetworkSide;
-import net.minecraft.network.NetworkState;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.packet.Packet;
@@ -20,10 +19,13 @@ import net.minecraft.network.packet.s2c.login.LoginQueryRequestS2CPacket;
 import net.minecraft.network.state.ConfigurationStates;
 import net.minecraft.network.state.HandshakeStates;
 import net.minecraft.network.state.LoginStates;
+import net.minecraft.network.state.NetworkState;
 import net.minecraft.network.state.PlayStateFactories;
 import net.minecraft.network.state.QueryStates;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
+import net.minecraft.registry.*;
+import net.minecraft.registry.tag.TagGroupLoader;
+import net.minecraft.registry.tag.TagPacketSerializer;
+import net.minecraft.resource.ResourceFactory;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,10 +35,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.OptionalInt;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
 public class PacketDumpDeserializer {
@@ -106,12 +107,25 @@ public class PacketDumpDeserializer {
                 Packet<?> packet = PacketDumping.readPacket(buf, state);
                 Identifier channelId = NetworkUtil.getChannelOrNull(packet);
 
-                if (packet instanceof LoginQueryRequestS2CPacket req) {
-                    loginQueryChannels.put(req.queryId(), req.payload().id());
+                if (packet instanceof LoginQueryRequestS2CPacket(int queryId, var payload)) {
+                    loginQueryChannels.put(queryId, payload.id());
                 } else if (packet instanceof LoginQueryResponseC2SPacket res) {
                     channelId = loginQueryChannels.get(res.queryId());
-                } else if (packet instanceof GadgetDynamicRegistriesPacket dyn) {
-                    registries = MinecraftClient.getInstance().world.getRegistryManager();
+                } else if (packet instanceof GadgetDynamicRegistriesPacket(
+                        Map<RegistryKey<? extends Registry<?>>, List<SerializableRegistries.SerializedRegistryEntry>> registries1
+                )) {
+                    var staticRegistries = DynamicRegistryManager.of(Registries.REGISTRIES);
+                    HashMap<RegistryKey<? extends Registry<?>>, RegistryLoader.ElementsAndTags> map = new HashMap<>();
+                    registries1.forEach((registryRef, entries) -> map.put(registryRef, new RegistryLoader.ElementsAndTags(entries, TagPacketSerializer.Serialized.NONE)));
+
+                    List<Registry.PendingTagLoad<?>> loadList = new ArrayList<>();
+                    DynamicRegistryManager.Immutable immutable = DynamicRegistryManager.of(Registries.REGISTRIES);
+                    List<RegistryWrapper.Impl<?>> registriesData = TagGroupLoader.collectRegistries(immutable, loadList);
+                    var network = RegistryLoader.loadFromNetwork(map, ResourceFactory.MISSING, registriesData, RegistryLoader.SYNCED_REGISTRIES);
+
+                    registries = new DynamicRegistryManager.ImmutableImpl(Stream
+                            .of(staticRegistries.streamAllRegistries(), network.streamAllRegistries())
+                            .flatMap(Function.identity()));
                 }
 
                 if (packet instanceof FakeGadgetPacket fake && fake.isVirtual()) continue;
@@ -151,7 +165,8 @@ public class PacketDumpDeserializer {
 
             case PLAY ->
                 switch (side) {
-                    case SERVERBOUND -> PlayStateFactories.C2S.bind(RegistryByteBuf.makeFactory(registries));
+                    case SERVERBOUND ->
+                            PlayStateFactories.C2S.bind(RegistryByteBuf.makeFactory(registries), () -> true);
                     case CLIENTBOUND -> PlayStateFactories.S2C.bind(RegistryByteBuf.makeFactory(registries));
                 };
         };
