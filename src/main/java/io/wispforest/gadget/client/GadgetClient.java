@@ -136,7 +136,7 @@ public class GadgetClient implements ClientModInitializer {
                 Entity camera = client.getCameraEntity();
                 if (camera == null) camera = client.player;
 
-                HitResult hitResult = raycast(camera, client.getRenderTickCounter().getTickDelta(false));
+                HitResult hitResult = raycast(camera, client.getRenderTickCounter().getTickProgress(false));
 
                 if (hitResult == null) return;
 

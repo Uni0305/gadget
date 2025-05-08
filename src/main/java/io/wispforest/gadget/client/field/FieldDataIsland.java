@@ -70,9 +70,10 @@ public class FieldDataIsland extends FieldDataHolder<ClientFieldDataNode> {
 
             if (data.isMixin())
                 nameText.formatted(Formatting.GRAY)
-                    .styled(x -> x.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                        Text.literal("Mixin-injected field")
-                            .formatted(Formatting.YELLOW))));
+                        .styled(style -> style.withHoverEvent(new HoverEvent.ShowText(
+                            Text.literal("Mixin-injected field")
+                                .formatted(Formatting.YELLOW)
+                        )));
 
             MutableText rowText = Text.literal("")
                 .append(Text.literal(data.obj().type().charAt(0) + " ")
@@ -95,7 +96,7 @@ public class FieldDataIsland extends FieldDataHolder<ClientFieldDataNode> {
                 rowText.append(Text.literal(" " + efo.exceptionClass())
                     .styled(x -> x
                         .withColor(Formatting.RED)
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of(efo.fullExceptionText())))));
+                        .withHoverEvent(new HoverEvent.ShowText(Text.of(efo.fullExceptionText())))));
             } else if (data.obj() instanceof ComplexFieldObject cfo) {
                 var subContainer = new SubObjectContainer(
                     container -> {
