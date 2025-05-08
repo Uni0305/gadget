@@ -2,11 +2,7 @@
 
  import io.wispforest.gadget.dump.read.unwrapped.FieldsUnwrappedPacket;
  import io.wispforest.gadget.dump.read.unwrapped.LinesUnwrappedPacket;
- import io.wispforest.gadget.mixin.owo.HandshakeResponseAccessor;
- import io.wispforest.gadget.mixin.owo.MessagePayloadAccessor;
- import io.wispforest.gadget.mixin.owo.ParticleSystemAccessor;
- import io.wispforest.gadget.mixin.owo.ParticleSystemInstanceAccessor;
- import io.wispforest.gadget.mixin.owo.ParticleSystemPayloadAccessor;
+ import io.wispforest.gadget.mixin.owo.*;
  import io.wispforest.gadget.util.ErrorSink;
  import io.wispforest.owo.network.OwoHandshake;
  import io.wispforest.owo.particles.systems.ParticleSystemController;
