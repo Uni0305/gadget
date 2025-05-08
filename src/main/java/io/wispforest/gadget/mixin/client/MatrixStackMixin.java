@@ -9,11 +9,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Deque;
+import java.util.List;
 
 @Mixin(MatrixStack.class)
 public class MatrixStackMixin {
-    @Shadow @Final private Deque<MatrixStack.Entry> stack;
+    @Shadow @Final private List<MatrixStack.Entry> stack;
 
     @Inject(method = "pop", at = @At("HEAD"), cancellable = true)
     private void onPop(CallbackInfo ci) {

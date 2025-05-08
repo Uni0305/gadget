@@ -1,6 +1,6 @@
 package io.wispforest.gadget.client.gui.inspector;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import io.wispforest.gadget.Gadget;
 import io.wispforest.gadget.util.ReflectionUtil;
 import io.wispforest.owo.ui.core.OwoUIDrawContext;
@@ -104,7 +104,7 @@ public class UIInspector {
 
         OwoUIDrawContext ctx = OwoUIDrawContext.of(ctxIn);
 
-        RenderSystem.disableDepthTest();
+        GlStateManager._disableDepthTest();
         var client = MinecraftClient.getInstance();
         var textRenderer = client.textRenderer;
 
@@ -162,6 +162,6 @@ public class UIInspector {
             ctx.getMatrices().translate(0, 0, -1000);
         }
 
-        RenderSystem.enableDepthTest();
+        GlStateManager._enableDepthTest();
     }
 }

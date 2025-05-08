@@ -143,7 +143,7 @@ public class ViewResourcesScreen extends BaseOwoScreen<FlowLayout> {
                 contents.clearChildren();
 
                 if (id.getPath().endsWith(".png")) {
-                    prevTexture = new NativeImageBackedTexture(NativeImage.read(is));
+                    prevTexture = new NativeImageBackedTexture(id::toString,NativeImage.read(is));
                     client.getTextureManager().registerTexture(FILE_TEXTURE_ID, prevTexture);
 
                     contents
