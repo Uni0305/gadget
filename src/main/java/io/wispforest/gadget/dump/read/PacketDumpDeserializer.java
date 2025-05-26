@@ -9,6 +9,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientDynamicRegistryType;
+import net.minecraft.client.network.ClientRegistries;
 import net.minecraft.network.NetworkPhase;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.PacketByteBuf;
@@ -112,20 +114,16 @@ public class PacketDumpDeserializer {
                 } else if (packet instanceof LoginQueryResponseC2SPacket res) {
                     channelId = loginQueryChannels.get(res.queryId());
                 } else if (packet instanceof GadgetDynamicRegistriesPacket(
-                        Map<RegistryKey<? extends Registry<?>>, List<SerializableRegistries.SerializedRegistryEntry>> registries1
+                        var packetRegistries, var packetTags
                 )) {
-                    var staticRegistries = DynamicRegistryManager.of(Registries.REGISTRIES);
-                    HashMap<RegistryKey<? extends Registry<?>>, RegistryLoader.ElementsAndTags> map = new HashMap<>();
-                    registries1.forEach((registryRef, entries) -> map.put(registryRef, new RegistryLoader.ElementsAndTags(entries, TagPacketSerializer.Serialized.NONE)));
+                    var preOpen = ClientDynamicRegistryType
+                            .createCombinedDynamicRegistries()
+                            .getCombinedRegistryManager();
+                    var clientRegistries = new ClientRegistries();
+                    packetRegistries.forEach(clientRegistries::putDynamicRegistry);
+                    clientRegistries.putTags(packetTags);
 
-                    List<Registry.PendingTagLoad<?>> loadList = new ArrayList<>();
-                    DynamicRegistryManager.Immutable immutable = DynamicRegistryManager.of(Registries.REGISTRIES);
-                    List<RegistryWrapper.Impl<?>> registriesData = TagGroupLoader.collectRegistries(immutable, loadList);
-                    var network = RegistryLoader.loadFromNetwork(map, ResourceFactory.MISSING, registriesData, RegistryLoader.SYNCED_REGISTRIES);
-
-                    registries = new DynamicRegistryManager.ImmutableImpl(Stream
-                            .of(staticRegistries.streamAllRegistries(), network.streamAllRegistries())
-                            .flatMap(Function.identity()));
+                    registries = clientRegistries.createRegistryManager(ResourceFactory.MISSING, preOpen, false);
                 }
 
                 if (packet instanceof FakeGadgetPacket fake && fake.isVirtual()) continue;

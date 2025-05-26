@@ -1,6 +1,5 @@
 package io.wispforest.gadget.dump.fake;
 
-import io.netty.buffer.ByteBuf;
 import io.wispforest.gadget.dump.read.unwrapped.UnprocessedUnwrappedPacket;
 import io.wispforest.gadget.dump.read.unwrapped.UnwrappedPacket;
 import net.minecraft.network.PacketByteBuf;
@@ -22,7 +21,7 @@ public record GadgetReadErrorPacket(byte[] data, int packetId, Exception excepti
     }
 
     @Override
-    public PacketCodec<ByteBuf, GadgetReadErrorPacket> codec() {
+    public PacketCodec<PacketByteBuf, GadgetReadErrorPacket> codec() {
         throw new UnsupportedOperationException();
     }
 
