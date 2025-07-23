@@ -4,8 +4,8 @@
     gadget
     <br>
     <br>
-    <a href="https://github.com/wisp-forest/gadget/releases">
-        <img src="https://img.shields.io/github/v/release/wisp-forest/gadget?logo=github&style=for-the-badge">
+    <a href="https://github.com/BasiqueEvangelist/Gadget/releases">
+        <img src="https://img.shields.io/github/v/release/BasiqueEvangelist/Gadget?logo=github&style=for-the-badge">
     </a>
     <a href="https://discord.gg/xrwHKktV2d">
         <img src="https://img.shields.io/discord/825828008644313089?label=wisp%20forest&logo=discord&logoColor=white&style=for-the-badge">
@@ -37,7 +37,7 @@ dependencies {
     // modCompileOnly "io.wispforest:gadget:${project.gadget_version}"
 }
 ```
-You can check the latest version on the [Releases](https://github.com/wisp-forest/gadget/releases) page
+You can check the latest version on the [Releases](https://github.com/BasiqueEvangelist/Gadget/releases) page
 
 For documentation, reference the [gadget explainer video](https://www.youtube.com/watch?v=8Ok5TIvziUQ).
 
