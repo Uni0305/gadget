@@ -25,7 +25,6 @@ public class GadgetConfigModel {
     @PredicateConstraint("isQuiltflowerVersionValid") public String quiltflowerVersion = "LATEST";
     @PredicateConstraint("isMappingsValid") @Hook public MappingsType mappings =
         FabricLoader.getInstance().isDevelopmentEnvironment() ? MappingsType.LOCAL : MappingsType.YARN;
-    public UICounterMode uiCounterMode = UICounterMode.LOG_ON_LONG_UPDATE;
     public boolean inspectClasses = true;
     public boolean fullDecompilationContext = true;
     @Hook public List<String> hiddenFields = new ArrayList<>(List.of(
@@ -111,12 +110,6 @@ public class GadgetConfigModel {
         public Supplier<Mappings> factory() {
             return factory;
         }
-    }
-
-    public enum UICounterMode {
-        OFF,
-        LOG_ON_LONG_UPDATE,
-        LOG_ALWAYS
     }
 
     public enum DumpSafetyMode {

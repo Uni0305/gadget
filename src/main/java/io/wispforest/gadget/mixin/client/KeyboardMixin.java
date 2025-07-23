@@ -19,7 +19,6 @@ public abstract class KeyboardMixin {
 
     @Shadow protected abstract boolean processF3(int key);
 
-    // TODO: look at whether this mixin still works.
     @ModifyExpressionValue(method = "onKey", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;keyPressed(III)Z"))
     private boolean afterKeyPressed(boolean original, long window, int key, int scancode, int action, int modifiers) {
         var client = MinecraftClient.getInstance();
