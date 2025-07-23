@@ -12,6 +12,7 @@
         "NamespaceResourceManagerMixin",
         "NbtTypesAccessor",
         "PathUtilMixin",
+        "TagPacketSerializerAccessor",
         "ZipResourcePackMixin",
         "owo.BaseComponentMixin",
         "owo.BaseParentComponentMixin",

@@ -24,6 +24,7 @@ import io.wispforest.gadget.network.packet.c2s.OpenFieldDataScreenC2SPacket;
 import io.wispforest.gadget.network.packet.c2s.RequestResourceC2SPacket;
 import io.wispforest.gadget.network.packet.s2c.*;
 import io.wispforest.owo.config.ui.ConfigScreen;
+import io.wispforest.owo.config.ui.ConfigScreenProviders;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.core.Insets;
@@ -75,7 +76,7 @@ public class GadgetClient implements ClientModInitializer {
         ContextMenuScreens.init();
         ChatLogAppender.init();
 
-        ConfigScreen.registerProvider("gadget", GadgetConfigScreen::new);
+        ConfigScreenProviders.register("gadget", GadgetConfigScreen::new);
 
         GadgetNetworking.CHANNEL.registerClientbound(OpenFieldDataScreenS2CPacket.class, (packet, access) -> {
             access.runtime().setScreen(new FieldDataScreen(

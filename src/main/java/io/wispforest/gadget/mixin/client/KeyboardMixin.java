@@ -1,9 +1,9 @@
 package io.wispforest.gadget.mixin.client;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import io.wispforest.gadget.Gadget;
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Keyboard.class)
@@ -20,15 +19,16 @@ public abstract class KeyboardMixin {
 
     @Shadow protected abstract boolean processF3(int key);
 
-    @Inject(method = "method_1454(ILnet/minecraft/client/gui/screen/Screen;[ZIII)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;keyPressed(III)Z", shift = At.Shift.BY, by = 2))
-    private static void afterKeyPressed(int code, Screen screen, boolean[] resultHack, int key, int scancode, int modifiers, CallbackInfo ci) {
+    // TODO: look at whether this mixin still works.
+    @ModifyExpressionValue(method = "onKey", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;keyPressed(III)Z"))
+    private boolean afterKeyPressed(boolean original, long window, int key, int scancode, int action, int modifiers) {
         var client = MinecraftClient.getInstance();
 
-        if (resultHack[0]) return;
-        if (!Gadget.CONFIG.debugKeysInScreens()) return;
-        if (!InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_F3)) return;
+        if (original) return true;
+        if (!Gadget.CONFIG.debugKeysInScreens()) return false;
+        if (!InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_F3)) return false;
 
-        resultHack[0] = ((KeyboardMixin)(Object) client.keyboard).processF3(key);
+        return ((KeyboardMixin)(Object) client.keyboard).processF3(key);
     }
 
     @Inject(method = "processF3", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;player:Lnet/minecraft/client/network/ClientPlayerEntity;"), cancellable = true)

@@ -20,32 +20,33 @@ public abstract class EntryListWidgetMixin<E extends EntryListWidget.Entry<E>> {
 
     @Shadow @Nullable public abstract E getFocused();
 
-    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    public void onRightClick(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
-        if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
-            if (!Gadget.CONFIG.rightClickDump()) {
-                cir.setReturnValue(false);
-                return;
-            }
-
-            EntryListWidget.Entry<?> clickedEntry = this.getEntryAtPosition(mouseX, mouseY);
-            if (clickedEntry != null) {
-                if (clickedEntry.mouseClicked(mouseX, mouseY, button)) {
-                    E parentEntry = this.getFocused();
-
-                    if (clickedEntry != parentEntry && parentEntry instanceof ParentElement) {
-                        ParentElement parentElement = (ParentElement) parentEntry;
-                        parentElement.setFocused((Element) null);
-                    }
-
-                    this.setFocused(clickedEntry);
-                    cir.setReturnValue(true);
-                    return;
-                }
-            }
-
-            cir.setReturnValue(false);
-            return;
-        }
-    }
+    // TODO: see if this is still needed.
+//    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
+//    public void onRightClick(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+//        if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+//            if (!Gadget.CONFIG.rightClickDump()) {
+//                cir.setReturnValue(false);
+//                return;
+//            }
+//
+//            EntryListWidget.Entry<?> clickedEntry = this.getEntryAtPosition(mouseX, mouseY);
+//            if (clickedEntry != null) {
+//                if (clickedEntry.mouseClicked(mouseX, mouseY, button)) {
+//                    E parentEntry = this.getFocused();
+//
+//                    if (clickedEntry != parentEntry && parentEntry instanceof ParentElement) {
+//                        ParentElement parentElement = (ParentElement) parentEntry;
+//                        parentElement.setFocused((Element) null);
+//                    }
+//
+//                    this.setFocused(clickedEntry);
+//                    cir.setReturnValue(true);
+//                    return;
+//                }
+//            }
+//
+//            cir.setReturnValue(false);
+//            return;
+//        }
+//    }
 }

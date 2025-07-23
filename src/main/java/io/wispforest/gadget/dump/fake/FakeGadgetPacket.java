@@ -2,6 +2,7 @@ package io.wispforest.gadget.dump.fake;
 
 import io.netty.buffer.ByteBuf;
 import io.wispforest.gadget.dump.read.unwrapped.UnwrappedPacket;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.Packet;
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 public interface FakeGadgetPacket extends Packet<PacketListener> {
     int id();
 
-    PacketCodec<ByteBuf, ? extends FakeGadgetPacket> codec();
+    PacketCodec<? super PacketByteBuf, ? extends FakeGadgetPacket> codec();
 
     default Packet<?> unwrapVanilla() {
         return this;
@@ -35,7 +36,7 @@ public interface FakeGadgetPacket extends Packet<PacketListener> {
     }
 
     @Override
-    default PacketType<? extends Packet<PacketListener>> getPacketId() {
+    default PacketType<? extends Packet<PacketListener>> getPacketType() {
         throw new IllegalStateException();
     }
     // endregion

@@ -18,7 +18,7 @@ import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.component.ComponentChanges;
-import net.minecraft.component.ComponentMapImpl;
+import net.minecraft.component.MergedComponentMap;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.screen.slot.Slot;
@@ -57,7 +57,7 @@ public class StackComponentDataScreen extends BaseOwoScreen<FlowLayout> {
                     .ifSuccess(newChanges -> {
                         currentEncodingError.set(null);
 
-                        ((ComponentMapImpl) stack.getComponents()).setChanges(newChanges);
+                        ((MergedComponentMap) stack.getComponents()).setChanges(newChanges);
                         stack.getItem().postProcessComponents(stack);
 
                         if (parent instanceof CreativeInventoryScreen) {

@@ -8,6 +8,7 @@ import io.wispforest.gadget.util.ProgressToast;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.client.network.ClientRegistries;
 import net.minecraft.network.*;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.login.LoginQueryResponseC2SPacket;
@@ -15,7 +16,6 @@ import net.minecraft.network.packet.s2c.login.LoginQueryRequestS2CPacket;
 import net.minecraft.network.state.*;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryLoader;
 import net.minecraft.resource.ResourceFactory;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -26,12 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.OptionalInt;
-import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 public class PacketDumpDeserializer {
@@ -106,10 +102,16 @@ public class PacketDumpDeserializer {
                 } else if (packet instanceof LoginQueryResponseC2SPacket res) {
                     channelId = loginQueryChannels.get(res.queryId());
                 } else if (packet instanceof GadgetDynamicRegistriesPacket dyn) {
-                    var staticRegistries = DynamicRegistryManager.of(Registries.REGISTRIES);
-                    var network = RegistryLoader.loadFromNetwork(dyn.registries(), ResourceFactory.MISSING, DynamicRegistryManager.of(Registries.REGISTRIES), RegistryLoader.SYNCED_REGISTRIES);
+                    var clientRegistries = new ClientRegistries();
 
-                    registries = new DynamicRegistryManager.ImmutableImpl(Stream.of(staticRegistries.streamAllRegistries(), network.streamAllRegistries()).flatMap(Function.identity()));
+                    dyn.elements().forEach(clientRegistries::putDynamicRegistry);
+                    clientRegistries.putTags(dyn.tags());
+
+                    registries = clientRegistries.createRegistryManager(
+                        ResourceFactory.MISSING,
+                        DynamicRegistryManager.of(Registries.REGISTRIES),
+                        false
+                    );
                 }
 
                 if (packet instanceof FakeGadgetPacket fake && fake.isVirtual()) continue;

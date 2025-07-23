@@ -8,6 +8,7 @@ import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
@@ -25,6 +26,7 @@ public class ProgressToastImpl implements Toast, ProgressToast {
     private long stopTime = 0;
     private LongSupplier following = null;
     private long followingTotal = 0;
+    private Visibility visibility = Visibility.SHOW;
 
     public ProgressToastImpl(Text headText) {
         this.adapter = OwoUIAdapter.createWithoutScreen(0, 0, 160, 32, Containers::verticalFlow);
@@ -53,7 +55,7 @@ public class ProgressToastImpl implements Toast, ProgressToast {
     }
 
     @Override
-    public Visibility draw(DrawContext ctx, ToastManager manager, long startTime) {
+    public void draw(DrawContext ctx, TextRenderer textRenderer, long startTime) {
         long value = following == null ? -1 : following.getAsLong();
 
         if (value < 0) {
@@ -64,17 +66,27 @@ public class ProgressToastImpl implements Toast, ProgressToast {
         }
 
         this.adapter.render(ctx, 0, 0, client.getRenderTickCounter().getTickDelta(false));
+    }
 
+    @Override
+    public void update(ToastManager manager, long time) {
         if (stopTime == -1)
-            stopTime = startTime + 1;
-        else if (stopTime == -2)
-            return Visibility.HIDE;
+            stopTime = time + 1;
+        else if (stopTime == -2) {
+            this.visibility = Visibility.HIDE;
+            return;
+        }
 
         if (stopTime == 0) {
-            return Visibility.SHOW;
+            this.visibility = Visibility.SHOW;
         } else {
-            return startTime - stopTime > 2500 ? Visibility.HIDE : Visibility.SHOW;
+            this.visibility = time - stopTime > 2500 ? Visibility.HIDE : Visibility.SHOW;
         }
+    }
+
+    @Override
+    public Visibility getVisibility() {
+        return visibility;
     }
 
     @Override
