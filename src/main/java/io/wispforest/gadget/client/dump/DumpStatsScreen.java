@@ -1,104 +1,122 @@
 package io.wispforest.gadget.client.dump;
 
-import io.wispforest.gadget.client.gui.BasedVerticalFlowLayout;
-import io.wispforest.gadget.client.gui.SidebarBuilder;
+import io.wispforest.gadget.client.gui.braid.BraidScreenWithParent;
+import io.wispforest.gadget.client.gui.braid.Sidebar;
+import io.wispforest.gadget.client.gui.braid.SidebarButton;
+import io.wispforest.gadget.client.gui.braid.VanillaTranslucent;
 import io.wispforest.gadget.dump.read.PacketDumpReader;
 import io.wispforest.gadget.dump.read.SearchTextData;
 import io.wispforest.gadget.util.NumberUtil;
 import io.wispforest.gadget.util.ProgressToast;
-import io.wispforest.owo.ui.base.BaseOwoScreen;
-import io.wispforest.owo.ui.component.Components;
-import io.wispforest.owo.ui.container.Containers;
-import io.wispforest.owo.ui.container.FlowLayout;
-import io.wispforest.owo.ui.container.ScrollContainer;
-import io.wispforest.owo.ui.core.*;
+import io.wispforest.owo.braid.core.Alignment;
+import io.wispforest.owo.braid.core.BraidScreen;
+import io.wispforest.owo.braid.core.Insets;
+import io.wispforest.owo.braid.framework.BuildContext;
+import io.wispforest.owo.braid.framework.widget.StatelessWidget;
+import io.wispforest.owo.braid.framework.widget.Widget;
+import io.wispforest.owo.braid.widgets.basic.Align;
+import io.wispforest.owo.braid.widgets.basic.Padding;
+import io.wispforest.owo.braid.widgets.flex.Column;
+import io.wispforest.owo.braid.widgets.label.Label;
+import io.wispforest.owo.braid.widgets.label.LabelStyle;
+import io.wispforest.owo.braid.widgets.scroll.VerticallyScrollable;
+import io.wispforest.owo.braid.widgets.stack.Stack;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.apache.commons.lang3.mutable.MutableLong;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DumpStatsScreen extends BaseOwoScreen<FlowLayout> {
-    private final Map<String, PacketTypeData> packetTypes = new HashMap<>();
-    private final Screen parent;
-    private final PacketDumpReader reader;
-    private int totalSize = 0;
-
+public class DumpStatsScreen extends BraidScreenWithParent {
     public DumpStatsScreen(Screen parent, PacketDumpReader reader, ProgressToast toast) {
-        this.parent = parent;
-        this.reader = reader;
+        super(parent, new DumpStatsWidget(reader, toast));
+    }
 
-        MutableLong progress = new MutableLong(0);
-        toast.followProgress(progress::getValue, reader.packets().size());
-        for (var packet : reader.packets()) {
-            var type = packetTypes.computeIfAbsent(packet.get(SearchTextData.KEY).searchText(), unused -> new PacketTypeData());
-            type.total += 1;
-            type.size += packet.size();
-            totalSize += packet.size();
+    @Override
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {}
 
-            progress.add(1);
+    public static class DumpStatsWidget extends StatelessWidget {
+        private final Map<String, PacketTypeData> packetTypes = new HashMap<>();
+        private int totalSize = 0;
+
+        private final PacketDumpReader reader;
+
+        public DumpStatsWidget( PacketDumpReader reader, ProgressToast toast) {
+            this.reader = reader;
+
+            MutableLong progress = new MutableLong(0);
+            toast.followProgress(progress::getValue, reader.packets().size());
+            for (var packet : reader.packets()) {
+                var type = packetTypes.computeIfAbsent(packet.get(SearchTextData.KEY).searchText(), unused -> new PacketTypeData());
+                type.total += 1;
+                type.size += packet.size();
+                totalSize += packet.size();
+
+                progress.add(1);
+            }
         }
-    }
 
-    @Override
-    protected @NotNull OwoUIAdapter<FlowLayout> createAdapter() {
-        return OwoUIAdapter.create(this, Containers::verticalFlow);
-    }
+        @Override
+        public Widget build(BuildContext context) {
+            return new VanillaTranslucent(
+                new Stack(
+                    new VerticallyScrollable(
+                        null,
+                        new Padding(
+                            Insets.both(20, 15),
+                            new Align(
+                                Alignment.TOP_LEFT,
+                                new Column(
+                                    packetTypes
+                                        .entrySet()
+                                        .stream()
+                                        .sorted(Comparator.comparing(x -> -x.getValue().size))
+                                        .map(x -> {
+                                            double sizePercent = (double) x.getValue().size / totalSize;
+                                            double totalPercent = (double) x.getValue().total / reader.packets().size();
 
-    @Override
-    protected void build(FlowLayout rootComponent) {
-        rootComponent
-            .horizontalAlignment(HorizontalAlignment.CENTER)
-            .verticalAlignment(VerticalAlignment.CENTER)
-            .surface(Surface.VANILLA_TRANSLUCENT);
+                                            MutableText total = Text.literal(x.getKey())
+                                                .append(Text.literal(" " + x.getValue().total + " packets,")
+                                                    .formatted(Formatting.GRAY))
+                                                .append(Text.literal(" " + NumberUtil.formatFileSize(x.getValue().size) + " total")
+                                                    .formatted(Formatting.GRAY))
+                                                .append(Text.literal("\n  " + NumberUtil.formatPercent(sizePercent) + " of size"))
+                                                .append(Text.literal("\n  " + NumberUtil.formatPercent(totalPercent) + " of packets"));
 
-        FlowLayout main = new BasedVerticalFlowLayout(Sizing.fill(100), Sizing.content());
-        ScrollContainer<FlowLayout> scroll = Containers.verticalScroll(Sizing.fill(95), Sizing.fill(100), main)
-            .scrollbar(ScrollContainer.Scrollbar.flat(Color.ofArgb(0xA0FFFFFF)));
+                                            return new Padding(
+                                                Insets.bottom(3),
+                                                new Label(
+                                                    new LabelStyle(
+                                                        Alignment.LEFT,
+                                                        null,
+                                                        null,
+                                                        null
+                                                    ),
+                                                    true,
+                                                    total
+                                                )
+                                            );
+                                        })
+                                        .toList()
+                                )
+                            )
+                        )
+                    ),
+                    new Sidebar(
+                        new SidebarButton("text.gadget.back", () -> BraidScreen.maybeOf(context).close())
+                    )
+                )
+            );
+        }
 
-        main.padding(Insets.vertical(15));
-
-        packetTypes
-            .entrySet()
-            .stream()
-            .sorted(Comparator.comparing(x -> -x.getValue().size))
-            .forEachOrdered(x -> {
-                double sizePercent = (double) x.getValue().size / totalSize;
-                double totalPercent = (double) x.getValue().total / reader.packets().size();
-
-                MutableText total = Text.literal(x.getKey())
-                    .append(Text.literal(" " + x.getValue().total + " packets,")
-                        .formatted(Formatting.GRAY))
-                    .append(Text.literal(" " + NumberUtil.formatFileSize(x.getValue().size) + " total")
-                        .formatted(Formatting.GRAY))
-                    .append(Text.literal("\n  " + NumberUtil.formatPercent(sizePercent) + " of size"))
-                    .append(Text.literal("\n  " + NumberUtil.formatPercent(totalPercent) + " of packets"));
-
-                main.child(Components.label(total)
-                    .margins(Insets.bottom(3)));
-            });
-
-        SidebarBuilder sidebar = new SidebarBuilder();
-
-        sidebar.button("text.gadget.back", (mouseX, mouseY) -> close());
-
-        rootComponent
-            .child(scroll)
-            .child(sidebar.layout());
-    }
-
-    @Override
-    public void close() {
-        client.setScreen(parent);
-    }
-
-    private static class PacketTypeData {
-        private int total;
-        private int size;
+        private static class PacketTypeData {
+            private int total;
+            private int size;
+        }
     }
 }
