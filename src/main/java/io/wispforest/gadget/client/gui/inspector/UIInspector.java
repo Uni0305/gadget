@@ -61,33 +61,6 @@ public class UIInspector {
         return false;
     }
 
-    public static void dumpWidgetTree(Screen screen) {
-        StringBuilder sb = new StringBuilder();
-        for (var parent : ElementUtils.listRootElements(screen))
-            writeWidgetTree(parent, 0, sb);
-        Gadget.LOGGER.info("Widget tree for screen:\n{}", sb);
-    }
-
-    private static void writeWidgetTree(Element element, int indent, StringBuilder sb) {
-        sb.append(" ".repeat(indent));
-        sb.append(ReflectionUtil.nameWithoutPackage(element.getClass()));
-        sb.append(" ");
-        sb.append(ElementUtils.x(element));
-        sb.append(",");
-        sb.append(ElementUtils.y(element));
-        sb.append(" (");
-        sb.append(ElementUtils.width(element));
-        sb.append(",");
-        sb.append(ElementUtils.height(element));
-        sb.append(")\n");
-
-        if (element instanceof ParentElement parent) {
-            for (var child : parent.children()) {
-                writeWidgetTree(child, indent + 1, sb);
-            }
-        }
-    }
-
     public void keyPressed(Screen screen, int keyCode, int scanCode, int modifiers) {
         if (keyCode == GLFW.GLFW_KEY_LEFT_SHIFT) {
             if ((modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {

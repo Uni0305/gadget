@@ -222,15 +222,6 @@ public class GadgetClient implements ClientModInitializer {
 
                     return false;
                 });
-
-            ScreenKeyboardEvents.allowKeyPress(screen).register((screen1, key, scancode, modifiers) -> {
-                if (!Screen.hasShiftDown()) return true;
-                if (!INSPECT_KEY.matchesKey(key, scancode)) return true;
-
-                UIInspector.dumpWidgetTree(screen1);
-
-                return false;
-            });
         });
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
