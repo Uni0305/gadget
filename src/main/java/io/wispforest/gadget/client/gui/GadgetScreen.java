@@ -5,7 +5,7 @@ import io.wispforest.gadget.client.DialogUtil;
 import io.wispforest.gadget.client.ServerData;
 import io.wispforest.gadget.client.dump.ClientPacketDumper;
 import io.wispforest.gadget.client.dump.OpenDumpScreen;
-import io.wispforest.gadget.client.resource.ViewClassesScreen;
+import io.wispforest.gadget.client.resource.ViewClassesWidget;
 import io.wispforest.gadget.client.resource.ViewResourcesScreen;
 import io.wispforest.gadget.network.GadgetNetworking;
 import io.wispforest.gadget.network.packet.c2s.ListResourcesC2SPacket;
@@ -110,7 +110,7 @@ public class GadgetScreen extends BaseOwoScreen<FlowLayout> {
 
             inspectClasses.margins(Insets.bottom(4));
             GuiUtil.semiButton(inspectClasses,
-                () -> ViewClassesScreen.openWithProgress(this));
+                () -> ViewClassesWidget.openWithProgress(this));
 
             main.child(inspectClasses);
         }

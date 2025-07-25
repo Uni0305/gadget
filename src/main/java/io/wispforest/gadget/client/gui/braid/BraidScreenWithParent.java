@@ -2,6 +2,7 @@ package io.wispforest.gadget.client.gui.braid;
 
 import io.wispforest.owo.braid.core.BraidScreen;
 import io.wispforest.owo.braid.framework.widget.Widget;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 
 public class BraidScreenWithParent extends BraidScreen {
@@ -11,6 +12,9 @@ public class BraidScreenWithParent extends BraidScreen {
         super(rootWidget);
         this.parent = parent;
     }
+
+    @Override
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) { }
 
     @Override
     public void close() {

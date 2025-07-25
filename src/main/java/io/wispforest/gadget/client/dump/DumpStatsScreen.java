@@ -37,9 +37,6 @@ public class DumpStatsScreen extends BraidScreenWithParent {
         super(parent, new DumpStatsWidget(reader, toast));
     }
 
-    @Override
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {}
-
     public static class DumpStatsWidget extends StatelessWidget {
         private final Map<String, PacketTypeData> packetTypes = new HashMap<>();
         private int totalSize = 0;
