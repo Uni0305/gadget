@@ -1,24 +1,28 @@
 package io.wispforest.gadget.client.resource;
 
-import io.wispforest.gadget.Gadget;
-import io.wispforest.gadget.client.gui.GuiUtil;
-import io.wispforest.gadget.client.gui.SubObjectContainer;
-import io.wispforest.owo.ui.base.BaseOwoScreen;
-import io.wispforest.owo.ui.component.Components;
-import io.wispforest.owo.ui.container.Containers;
-import io.wispforest.owo.ui.container.FlowLayout;
-import io.wispforest.owo.ui.container.ScrollContainer;
-import io.wispforest.owo.ui.core.*;
-import io.wispforest.owo.ui.util.UISounds;
+import io.wispforest.gadget.client.gui.braid.BraidGuiUtil;
+import io.wispforest.gadget.client.gui.braid.BraidScreenWithParent;
+import io.wispforest.gadget.client.gui.braid.HexDump;
+import io.wispforest.gadget.client.gui.braid.VanillaTranslucent;
+import io.wispforest.owo.braid.core.Alignment;
+import io.wispforest.owo.braid.core.Insets;
+import io.wispforest.owo.braid.core.LayoutAxis;
+import io.wispforest.owo.braid.framework.BuildContext;
+import io.wispforest.owo.braid.framework.proxy.WidgetState;
+import io.wispforest.owo.braid.framework.widget.StatefulWidget;
+import io.wispforest.owo.braid.framework.widget.Widget;
+import io.wispforest.owo.braid.widgets.basic.Align;
+import io.wispforest.owo.braid.widgets.basic.Padding;
+import io.wispforest.owo.braid.widgets.scroll.FlatScrollbar;
+import io.wispforest.owo.braid.widgets.scroll.ScrollableWithBars;
+import io.wispforest.owo.braid.widgets.splitpane.SplitPane;
+import io.wispforest.owo.ui.core.Color;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.text.Text;
+import net.minecraft.resource.InputSupplier;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.NotNull;
-import org.lwjgl.glfw.GLFW;
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -27,238 +31,176 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 
-public class ViewResourcesScreen extends BaseOwoScreen<FlowLayout> {
-    private static final Identifier FILE_TEXTURE_ID = Gadget.id("file_texture");
-
-    private final Screen parent;
-    private final Map<Identifier, Integer> resourcePaths;
-    private BiConsumer<Identifier, Integer> resRequester;
-    private NativeImageBackedTexture prevTexture;
-    private FlowLayout contents;
+public class ViewResourcesScreen extends BraidScreenWithParent {
+    private final Contents contents;
 
     public ViewResourcesScreen(Screen parent, Map<Identifier, Integer> resourcePaths) {
-        this.parent = parent;
-        this.resourcePaths = resourcePaths;
+        super(parent, new Contents(resourcePaths));
+        contents = (Contents) rootWidget;
     }
 
     public void resRequester(BiConsumer<Identifier, Integer> resRequester) {
-        this.resRequester = resRequester;
+        contents.resRequester(resRequester);
     }
 
-    @Override
-    protected @NotNull OwoUIAdapter<FlowLayout> createAdapter() {
-        return OwoUIAdapter.create(this, Containers::horizontalFlow);
+    public void openFile(Identifier id, InputSupplier<InputStream> is) {
+        contents.resAcceptor.accept(id, is);
     }
 
-    @Override
-    protected void build(FlowLayout rootComponent) {
-        rootComponent
-            .surface(Surface.VANILLA_TRANSLUCENT)
-            .padding(Insets.of(5));
+    public static class Contents extends StatefulWidget {
+        private final Map<Identifier, Integer> resourcePaths;
+        private BiConsumer<Identifier, Integer> resRequester;
 
-        FlowLayout tree = Containers.verticalFlow(Sizing.content(), Sizing.content());
-        ScrollContainer<FlowLayout> treeScroll = Containers.verticalScroll(Sizing.fill(25), Sizing.fill(100), tree)
-            .scrollbar(ScrollContainer.Scrollbar.flat(Color.ofArgb(0xA0FFFFFF)));
-        contents = Containers.verticalFlow(Sizing.content(), Sizing.content());
-        ScrollContainer<FlowLayout> contentsScroll = Containers.verticalScroll(Sizing.fill(72), Sizing.fill(100), contents)
-            .scrollbar(ScrollContainer.Scrollbar.flat(Color.ofArgb(0xA0FFFFFF)));
+        private BiConsumer<Identifier, InputSupplier<InputStream>> resAcceptor;
 
-        rootComponent
-            .child(treeScroll
-                .margins(Insets.right(3)))
-            .child(contentsScroll);
-
-        TreeEntry root = new TreeEntry("", tree);
-
-        for (var pair : resourcePaths.entrySet()) {
-            String fullPath = pair.getKey().getNamespace() + "/" + pair.getKey().getPath();
-            String[] split = fullPath.split("/");
-            TreeEntry parent = root;
-
-            for (int i = 0; i < split.length - 1; i++) {
-                parent = parent.directory(split[i]);
-            }
-
-            if (pair.getValue() > 1) {
-                SubObjectContainer sub = new SubObjectContainer(unused -> {
-                }, unused -> {
-                });
-                FlowLayout entryContainer = Containers.verticalFlow(Sizing.content(), Sizing.content());
-                FlowLayout row = Containers.horizontalFlow(Sizing.content(), Sizing.content());
-
-                parent.container
-                    .child(entryContainer
-                        .child(row
-                            .child(Components.label(Text.literal(split[split.length - 1])))
-                            .child(sub.getSpinnyBoi()
-                                .margins(Insets.left(3))))
-                        .child(sub));
-
-                for (int i = 0; i < pair.getValue(); i++) {
-                    sub.child(makeRecipeRow(String.valueOf(i), pair.getKey(), i));
-                }
-
-            } else {
-                parent.container.child(makeRecipeRow(split[split.length - 1], pair.getKey(), 0));
-            }
-        }
-    }
-
-    private FlowLayout makeRecipeRow(String name, Identifier key, int index) {
-        var row = Containers.horizontalFlow(Sizing.content(), Sizing.content());
-        var fileLabel = Components.label(Text.literal(name));
-
-        row.child(fileLabel);
-        row.mouseEnter().subscribe(
-            () -> row.surface(Surface.flat(0x80ffffff)));
-
-        row.mouseLeave().subscribe(
-            () -> row.surface(Surface.BLANK));
-
-        row.mouseDown().subscribe((mouseX, mouseY, button) -> {
-            if (button != GLFW.GLFW_MOUSE_BUTTON_LEFT) return false;
-
-            UISounds.playInteractionSound();
-
-            resRequester.accept(key, index);
-
-            return true;
-        });
-
-        return row;
-    }
-
-    public void openFile(Identifier id, Callable<InputStream> isGetter) {
-        if (prevTexture != null) {
-            prevTexture.close();
-            prevTexture = null;
+        public Contents(Map<Identifier, Integer> resourcePaths) {
+            this.resourcePaths = resourcePaths;
         }
 
-        contents.configure(unused -> {
-            try {
-                var is = isGetter.call();
-                contents.clearChildren();
+        public void resRequester(BiConsumer<Identifier, Integer> resRequester) {
+            assertMutable();
+            this.resRequester = resRequester;
+        }
 
-                if (id.getPath().endsWith(".png")) {
-                    prevTexture = new NativeImageBackedTexture(NativeImage.read(is));
-                    client.getTextureManager().registerTexture(FILE_TEXTURE_ID, prevTexture);
 
-                    contents
-                        .child(Components.texture(
-                            FILE_TEXTURE_ID,
-                            0,
-                            0,
-                            prevTexture.getImage().getWidth(),
-                            prevTexture.getImage().getHeight(),
-                            prevTexture.getImage().getWidth(),
-                            prevTexture.getImage().getHeight()))
-                        .child(Components.label(
-                            Text.translatable(
-                                "text.gadget.image_size",
-                                prevTexture.getImage().getWidth(),
-                                prevTexture.getImage().getHeight(),
-                                "PNG"
-                            )));
+        @Override
+        public WidgetState<?> createState() {
+            return new State();
+        }
 
-                    return;
-                }
+    }
 
-                is = new BufferedInputStream(is);
+    public static class State extends WidgetState<Contents> {
+        private final TreeEntry<ResourceKey> treeRoot = new TreeEntry<>("");
 
-                boolean isText = id.getPath().endsWith(".txt")
-                    || id.getPath().endsWith(".json")
-                    || id.getPath().endsWith(".fsh")
-                    || id.getPath().endsWith(".vsh")
-                    || id.getPath().endsWith(".snbt");
+        private Identifier currentResourceId = null;
+        private InputSupplier<InputStream> currentResourceGetter = null;
 
-                if (!isText) {
-                    try {
-                        is.mark(128);
-                        byte[] bytes = is.readNBytes(128);
+        @Override
+        public void init() {
+            for (var pair : widget().resourcePaths.entrySet()) {
+                String fullPath = pair.getKey().getNamespace() + "/" + pair.getKey().getPath();
+                List<String> split = new ArrayList<>(List.of(fullPath.split("/")));
 
-                        var chars = StandardCharsets.UTF_8
-                            .newDecoder()
-                            .onUnmappableCharacter(CodingErrorAction.REPORT)
-                            .onMalformedInput(CodingErrorAction.REPORT)
-                            .decode(ByteBuffer.wrap(bytes));
+                if (pair.getValue() > 1) {
+                    for (int i = 0; i < pair.getValue(); i++) {
+                        split.add(String.valueOf(i));
 
-                        isText = true;
+                        treeRoot.addUnder(split, new ResourceKey(pair.getKey(), i));
 
-                        for (int i = 0; i < chars.length(); i++) {
-                            int codepoint = chars.charAt(i);
-
-                            if (codepoint > 127) continue;
-
-                            if (!Character.isDigit(codepoint)
-                                && !Character.isAlphabetic(codepoint)
-                                && !Character.isSpaceChar(codepoint)) {
-                                isText = false;
-                                break;
-                            }
-                        }
-                    } catch (CharacterCodingException cce) {
-                        // ...
+                        split.removeLast();
                     }
-
-                    is.reset();
+                } else {
+                    treeRoot.addUnder(split, new ResourceKey(pair.getKey(), 0));
                 }
-
-                if (isText) {
-                    GuiUtil.showMonospaceText(contents, new String(is.readAllBytes(), StandardCharsets.UTF_8));
-                    return;
-                }
-
-                // Display as bytes.
-                contents.child(GuiUtil.hexDump(is.readAllBytes(), false));
-            } catch (Exception e) {
-                contents.child(GuiUtil.showException(e));
             }
-        });
-    }
 
-    @Override
-    public void close() {
-        client.setScreen(parent);
-        if (prevTexture != null) {
-            prevTexture.close();
+            widget().resAcceptor = (id, getter) -> {
+                this.setState(() -> {
+                    this.currentResourceId = id;
+                    this.currentResourceGetter = getter;
+                });
+            };
+        }
+
+        @Override
+        public Widget build(BuildContext context) {
+            Widget contents;
+
+            if (currentResourceId == null) {
+                contents = new Padding(Insets.none());
+            } else {
+                if (currentResourceId.getPath().endsWith(".png")) {
+                    contents = new PngTexture(currentResourceGetter);
+                } else {
+                    try {
+                        InputStream is = new BufferedInputStream(currentResourceGetter.get());
+
+                        boolean isText = currentResourceId.getPath().endsWith(".txt")
+                            || currentResourceId.getPath().endsWith(".json")
+                            || currentResourceId.getPath().endsWith(".fsh")
+                            || currentResourceId.getPath().endsWith(".vsh")
+                            || currentResourceId.getPath().endsWith(".snbt");
+
+                        if (!isText) {
+                            try {
+                                is.mark(128);
+                                byte[] bytes = is.readNBytes(128);
+
+                                var chars = StandardCharsets.UTF_8
+                                    .newDecoder()
+                                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                                    .onMalformedInput(CodingErrorAction.REPORT)
+                                    .decode(ByteBuffer.wrap(bytes));
+
+                                isText = true;
+
+                                for (int i = 0; i < chars.length(); i++) {
+                                    int codepoint = chars.charAt(i);
+
+                                    if (codepoint > 127) continue;
+
+                                    if (!Character.isDigit(codepoint)
+                                        && !Character.isAlphabetic(codepoint)
+                                        && !Character.isSpaceChar(codepoint)) {
+                                        isText = false;
+                                        break;
+                                    }
+                                }
+                            } catch (CharacterCodingException cce) {
+                                // ...
+                            }
+
+                            is.reset();
+                        }
+
+                        if (isText) {
+                            contents = BraidGuiUtil.codeListing(new String(is.readAllBytes(), StandardCharsets.UTF_8));
+                        } else {
+                            // Display as bytes.
+                            contents = new HexDump(is.readAllBytes(), false);
+                        }
+                    } catch (IOException e) {
+                        // TODO: show exception.
+                        contents = BraidGuiUtil.showException(e);
+                    }
+                }
+            }
+
+            return new VanillaTranslucent(
+                new Padding(
+                    Insets.all(5),
+                    new SplitPane(
+                        new ScrollableWithBars(
+                            null,
+                            null,
+                            3,
+                            (axis, controller) -> new FlatScrollbar(axis, controller, Color.ofRgb(0xabb0bf), Color.ofRgb(0xabb0bf)),
+                            new TreeEntryWidget<>(treeRoot, k -> {
+                                widget().resRequester.accept(k.id(), k.index());
+                            })
+                        ),
+                        new ScrollableWithBars(
+                            null,
+                            null,
+                            3,
+                            (axis, controller) -> new FlatScrollbar(axis, controller, Color.ofRgb(0xabb0bf), Color.ofRgb(0xabb0bf)),
+                            new Padding(
+                                Insets.all(5),
+                                new Align(
+                                    Alignment.TOP_LEFT,
+                                    contents
+                                )
+                            )
+                        ),
+                        LayoutAxis.HORIZONTAL
+                    )
+                )
+            );
         }
     }
 
-    private static class TreeEntry {
-        private final String name;
-        private final List<TreeEntry> children = new ArrayList<>();
-        private final FlowLayout container;
-
-        private TreeEntry(String name, FlowLayout container) {
-            this.name = name;
-            this.container = container;
-        }
-
-        public TreeEntry directory(String name) {
-            for (TreeEntry entry : children)
-                if (entry.name.equals(name))
-                    return entry;
-
-            SubObjectContainer sub = new SubObjectContainer(unused -> {
-            }, unused -> {
-            });
-            FlowLayout entryContainer = Containers.verticalFlow(Sizing.content(), Sizing.content());
-            FlowLayout row = Containers.horizontalFlow(Sizing.content(), Sizing.content());
-
-            container
-                .child(entryContainer
-                    .child(row
-                        .child(Components.label(Text.literal(name)))
-                        .child(sub.getSpinnyBoi()
-                            .margins(Insets.left(3))))
-                    .child(sub));
-
-            TreeEntry entry = new TreeEntry(name, sub);
-            children.add(entry);
-            return entry;
-        }
-    }
+    private record ResourceKey(Identifier id, int index) { }
 }

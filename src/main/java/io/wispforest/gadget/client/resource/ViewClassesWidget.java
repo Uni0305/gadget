@@ -78,32 +78,30 @@ public class ViewClassesWidget extends StatefulWidget {
         return new State();
     }
 
-    public class State extends WidgetState<ViewClassesWidget> {
-        private final QuiltflowerHandler decompiler;
+    public static class State extends WidgetState<ViewClassesWidget> {
+        private QuiltflowerHandler decompiler;
 
         private String currentFileName = "";
         private String currentFileContents = "";
 
         private final List<Text> logMessages = new ArrayList<>();
 
-        private final TreeEntry treeRoot = new TreeEntry("");
+        private final TreeEntry<String> treeRoot = new TreeEntry<>("");
 
         private final ScrollController scrollController = new ScrollController();
 
-        public State() {
-            this.decompiler = QuiltflowerManager.loadHandler(toast, text -> {
+        @Override
+        public void init() {
+            this.decompiler = QuiltflowerManager.loadHandler(widget().toast, text -> {
                 MinecraftClient.getInstance().execute(() -> {
                     setState(() -> logMessages.add(text));
                     schedulePostLayoutCallback(() -> scrollController.setOffset(scrollController.maxOffset()));
                 });
             });
-        }
 
-        @Override
-        public void init() {
             Set<String> allClasses;
 
-            if (showAll) {
+            if (widget().showAll) {
                 allClasses = new TreeSet<>();
 
                 for (Class<?> klass : KnotUtil.INSTRUMENTATION.getInitiatedClasses(Gadget.class.getClassLoader())) {
@@ -124,7 +122,7 @@ public class ViewClassesWidget extends StatefulWidget {
                 treeRoot.addUnder(split, fullPath);
             }
 
-            toast = null;
+            widget().toast = null;
         }
 
         private void switchToClass(String fullPath) {
@@ -196,7 +194,7 @@ public class ViewClassesWidget extends StatefulWidget {
                             null,
                             3,
                             (axis, controller) -> new FlatScrollbar(axis, controller, Color.ofRgb(0xabb0bf), Color.ofRgb(0xabb0bf)),
-                            new TreeEntryWidget(treeRoot, this::switchToClass)
+                            new TreeEntryWidget<>(treeRoot, this::switchToClass)
                         ),
                         new ScrollableWithBars(
                             null,

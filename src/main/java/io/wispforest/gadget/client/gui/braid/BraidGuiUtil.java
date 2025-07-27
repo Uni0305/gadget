@@ -1,6 +1,7 @@
 package io.wispforest.gadget.client.gui.braid;
 
 import io.wispforest.gadget.Gadget;
+import io.wispforest.gadget.util.ThrowableUtil;
 import io.wispforest.owo.braid.core.Alignment;
 import io.wispforest.owo.braid.core.LayoutAxis;
 import io.wispforest.owo.braid.framework.widget.Widget;
@@ -12,7 +13,6 @@ import io.wispforest.owo.braid.widgets.label.LabelStyle;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +24,8 @@ public final class BraidGuiUtil {
 
     public static Widget codeListing(String all) {
         var lines = all.lines().toList();
-        int maxWidth = Integer.toString(lines.size() - 1).length();
 
-        int i = 0;
+        int i = 1;
 
         List<Widget> widgets = new ArrayList<>();
 
@@ -34,9 +33,12 @@ public final class BraidGuiUtil {
             var text = Text.literal("")
                 .append(Text.literal(line.replace("\t", "    ")));
 
-            widgets.add(new Label(
-                Text.literal(StringUtils.leftPad(Integer.toString(i), maxWidth) + " ")
-                    .formatted(Formatting.GRAY)
+            widgets.add(new Align(
+                Alignment.RIGHT,
+                new Label(
+                    Text.literal(i + " ")
+                        .formatted(Formatting.GRAY)
+                )
             ));
 
             widgets.add(new Label(
@@ -59,4 +61,12 @@ public final class BraidGuiUtil {
             )
         );
     }
+
+    public static Label showException(Throwable e) {
+        String fullExceptionText = ThrowableUtil.throwableToString(e);
+        return new Label(
+            Text.literal(fullExceptionText.replace("\t", "    "))
+                .formatted(Formatting.RED));
+    }
+
 }
