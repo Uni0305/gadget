@@ -19,9 +19,9 @@ import java.nio.file.Path;
 public final class IntermediaryLoader {
     public static final String INTERMEDIARY_ENDPOINT
         = "https://maven.fabricmc.net/net/fabricmc/intermediary/"
-        + SharedConstants.getGameVersion().getName()
+        + SharedConstants.getGameVersion().name()
         + "/intermediary-"
-        + SharedConstants.getGameVersion().getName()
+        + SharedConstants.getGameVersion().name()
         + "-v2.jar";
 
     private IntermediaryLoader() {
@@ -33,7 +33,7 @@ public final class IntermediaryLoader {
 
         Files.createDirectories(mappingsDir);
 
-        Path intermediaryPath = mappingsDir.resolve("intermediary-" + SharedConstants.getGameVersion().getName() + ".jar");
+        Path intermediaryPath = mappingsDir.resolve("intermediary-" + SharedConstants.getGameVersion().name() + ".jar");
 
         if (!Files.exists(intermediaryPath)) {
             toast.step(Text.translatable("message.gadget.progress.downloading_intermediary"));

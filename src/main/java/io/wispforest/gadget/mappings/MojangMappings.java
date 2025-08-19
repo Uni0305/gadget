@@ -30,7 +30,7 @@ public class MojangMappings extends LoadingMappings {
 
             Files.createDirectories(mappingsDir);
 
-            Path mojPath = mappingsDir.resolve("mojmap-" + SharedConstants.getGameVersion().getName() + ".tiny");
+            Path mojPath = mappingsDir.resolve("mojmap-" + SharedConstants.getGameVersion().name() + ".tiny");
 
             if (Files.exists(mojPath)) {
                 try (BufferedReader br = Files.newBufferedReader(mojPath)) {
@@ -50,12 +50,12 @@ public class MojangMappings extends LoadingMappings {
             for (int i = 0; i < versions.size(); i++) {
                 JsonObject version = versions.get(i).getAsJsonObject();
 
-                if (JsonHelper.getString(version, "id").equals(SharedConstants.getGameVersion().getId()))
+                if (JsonHelper.getString(version, "id").equals(SharedConstants.getGameVersion().id()))
                     chosenUrl = JsonHelper.getString(version, "url");
             }
 
             if (chosenUrl == null)
-                throw new UnsupportedOperationException("Couldn't find version " + SharedConstants.getGameVersion().getId() + " on Mojang's servers!");
+                throw new UnsupportedOperationException("Couldn't find version " + SharedConstants.getGameVersion().id() + " on Mojang's servers!");
 
             toast.step(Text.translatable("message.gadget.progress.downloading_minecraft_version_manifest"));
             JsonObject manifest = DownloadUtil.read(toast, chosenUrl);
