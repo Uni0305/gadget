@@ -39,7 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class YarnMappings extends LoadingMappings {
-    private static final String YARN_API_ENTRYPOINT = "https://meta.fabricmc.net/v2/versions/yarn/" + SharedConstants.getGameVersion().getId();
+    private static final String YARN_API_ENTRYPOINT = "https://meta.fabricmc.net/v2/versions/yarn/" + SharedConstants.getGameVersion().id();
 
     @Override
     protected void load(ProgressToast toast, MappingVisitor visitor) {
@@ -48,7 +48,7 @@ public class YarnMappings extends LoadingMappings {
 
             Files.createDirectories(mappingsDir);
 
-            Path yarnPath = mappingsDir.resolve("yarn-" + SharedConstants.getGameVersion().getId() + ".jar");
+            Path yarnPath = mappingsDir.resolve("yarn-" + SharedConstants.getGameVersion().id() + ".jar");
 
             if (!Files.exists(yarnPath)) {
                 toast.step(Text.translatable("message.gadget.progress.downloading_yarn_versions"));

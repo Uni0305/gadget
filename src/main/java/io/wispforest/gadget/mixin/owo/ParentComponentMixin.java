@@ -1,11 +1,8 @@
 package io.wispforest.gadget.mixin.owo;
 
 import io.wispforest.gadget.client.gui.BasedVerticalFlowLayout;
-import io.wispforest.owo.ui.core.AnimatableProperty;
-import io.wispforest.owo.ui.core.Component;
-import io.wispforest.owo.ui.core.Insets;
-import io.wispforest.owo.ui.core.ParentComponent;
-import io.wispforest.owo.ui.util.ScissorStack;
+import io.wispforest.gadget.util.ScissorStack;
+import io.wispforest.owo.ui.core.*;
 import net.minecraft.client.util.math.MatrixStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

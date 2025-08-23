@@ -6,6 +6,7 @@ import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.util.UISounds;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.RotationAxis;
+import org.joml.Matrix3x2fc;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -150,13 +151,13 @@ public class SubObjectContainer extends FlowLayout {
 
         @Override
         public void draw(OwoUIDrawContext ctx, int mouseX, int mouseY, float partialTicks, float delta) {
-            ctx.getMatrices().push();
-            ctx.getMatrices().translate(this.x + this.width / 2f - 1, this.y + this.height / 2f - 1, 0);
-            ctx.getMatrices().multiply(RotationAxis.POSITIVE_Z.rotationDegrees(this.rotation));
-            ctx.getMatrices().translate(-(this.x + this.width / 2f - 1), -(this.y + this.height / 2f - 1), 0);
+            ctx.getMatrices().pushMatrix();
+            ctx.getMatrices().translate(this.x + this.width / 2f - 1, this.y + this.height / 2f - 1, ctx.getMatrices());
+            ctx.getMatrices().rotate((float) Math.toRadians(rotation));
+            ctx.getMatrices().translate(-(this.x + this.width / 2f - 1), -(this.y + this.height / 2f - 1), ctx.getMatrices());
 
             super.draw(ctx, mouseX, mouseY, partialTicks, delta);
-            ctx.getMatrices().pop();
+            ctx.getMatrices().popMatrix();
         }
     }
 }
