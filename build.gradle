@@ -4,9 +4,12 @@ plugins {
 	id 'maven-publish'
 }
 
-archivesBaseName = project.archives_base_name
 version = "${project.mod_version}+${project.minecraft_base_version}"
 group = project.maven_group
+
+ext {
+    archivesBaseName = project.archives_base_name
+}
 
 repositories {
 	// Add repositories to retrieve artifacts from in here.
