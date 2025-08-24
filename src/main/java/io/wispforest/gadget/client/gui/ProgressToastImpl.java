@@ -38,10 +38,12 @@ public class ProgressToastImpl implements Toast, ProgressToast {
             .child(Components.label(headText)
                 .maxWidth(160)
                 .horizontalTextAlignment(HorizontalAlignment.CENTER)
+                .color(Color.WHITE)
                 .margins(Insets.bottom(0)))
             .child(stepLabel = Components.label(Text.empty())
                 .maxWidth(160)
-                .horizontalTextAlignment(HorizontalAlignment.CENTER))
+                .horizontalTextAlignment(HorizontalAlignment.CENTER)
+                .color(Color.WHITE))
             .child((progressBox = Components.box(Sizing.fixed(0), Sizing.fixed(3)))
                 .color(Color.WHITE)
                 .fill(true)
@@ -59,14 +61,25 @@ public class ProgressToastImpl implements Toast, ProgressToast {
     public void draw(DrawContext context, TextRenderer textRenderer, long startTime) {
         long value = following == null ? -1 : following.getAsLong();
 
-        if (value < 0) {
-            progressBox.horizontalSizing(Sizing.fixed(0));
-            following = null;
-        } else {
-            progressBox.horizontalSizing(Sizing.fixed((int) (value * 140 / followingTotal)));
-        }
+        context.fill(0, 0, 160, 32, 0xBF000000);
+        context.drawBorder(0, 0, 160, 32, 0xFF5800FF);
 
-        this.adapter.render(context, 0, 0, client.getRenderTickCounter().getTickProgress(false));
+        int progressWidth = value < 0 ? 0 : (int) (value * 140 / followingTotal);
+        context.fill(10, 25, 10 + progressWidth, 28, Color.WHITE.argb());
+
+        if (adapter != null && adapter.rootComponent != null && !adapter.rootComponent.children().isEmpty()) {
+            LabelComponent headLabel = (LabelComponent) adapter.rootComponent.children().getFirst();
+            String headTextStr = headLabel.text().getString();
+            int headTextWidth = textRenderer.getWidth(headTextStr);
+            int headTextX = (160 - headTextWidth) / 2;
+            context.drawText(textRenderer, headLabel.text(), headTextX, 8, Color.WHITE.argb(), false);
+        }
+        if (stepLabel != null && stepLabel.text() != null && !stepLabel.text().getString().isEmpty()) {
+            String stepTextStr = stepLabel.text().getString();
+            int stepTextWidth = textRenderer.getWidth(stepTextStr);
+            int stepTextX = (160 - stepTextWidth) / 2;
+            context.drawText(textRenderer, stepLabel.text(), stepTextX, 16, Color.WHITE.argb(), false);
+        }
     }
 
     @Override
