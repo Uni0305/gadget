@@ -49,6 +49,7 @@ public class SidebarBuilder {
         public Button(Text icon, Text tooltip) {
             super(Sizing.fixed(16), Sizing.fixed(16), Algorithm.VERTICAL);
 
+            if (icon == null) icon = Text.empty();
             child((iconLabel = Components.label(icon))
                 .verticalTextAlignment(VerticalAlignment.CENTER)
                 .horizontalTextAlignment(HorizontalAlignment.CENTER)
@@ -57,8 +58,9 @@ public class SidebarBuilder {
             );
             cursorStyle(CursorStyle.HAND);
 
-            if (tooltip != null)
+            if (tooltip != null) {
                 tooltip(tooltip);
+            }
 
             mouseEnter().subscribe(
                 () -> surface(Surface.flat(0x80ffffff)));
