@@ -137,6 +137,10 @@ public final class FieldObjects {
 
 
     public static FieldObject fromObject(Object o, Set<Object> pathObjs) {
+        if (o == null) {
+            return new PrimitiveFieldObject("null", Optional.empty());
+        }
+        
         if (o instanceof NbtCompound compound) {
             return new NbtCompoundFieldObject(compound);
         } else if (o instanceof byte[] bytes) {
