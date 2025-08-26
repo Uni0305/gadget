@@ -1,6 +1,5 @@
 package io.wispforest.gadget.dump.fake;
 
-import io.netty.buffer.ByteBuf;
 import io.wispforest.gadget.dump.read.unwrapped.UnwrappedPacket;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;

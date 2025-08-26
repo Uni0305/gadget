@@ -160,4 +160,3 @@ public class SubObjectContainer extends FlowLayout {
         }
     }
 }
-
