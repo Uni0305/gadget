@@ -55,7 +55,7 @@ public class UIInspector {
         if (!enabled()) return true;
         if (!Screen.hasShiftDown()) return true;
 
-        childAtOffset += verticalAmount;
+        childAtOffset += (int) verticalAmount;
         if (childAtOffset < 0) childAtOffset = 0;
 
         return false;
