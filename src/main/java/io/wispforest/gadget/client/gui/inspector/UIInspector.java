@@ -118,9 +118,10 @@ public class UIInspector {
         if (onlyHovered) {
             children.removeIf(el -> !ElementUtils.inBoundingBox(el, mouseX, mouseY));
 
-            childAtOffset = Math.min(childAtOffset, children.size() - 1);
-
-            if (!children.isEmpty()) {
+            if (children.isEmpty()) {
+                childAtOffset = 0;
+            } else {
+                childAtOffset = Math.max(0, Math.min(childAtOffset, children.size() - 1));
                 var selected = children.get(childAtOffset);
                 children.clear();
                 children.add(selected);
