@@ -140,7 +140,6 @@ public class UIInspector {
             ctx.drawRectOutline(ElementUtils.x(child), ElementUtils.y(child), ElementUtils.width(child), ElementUtils.height(child), 0xFF3AB0FF);
 
             if (onlyHovered) {
-
                 int inspectorX = ElementUtils.x(child) + 1;
                 int inspectorY = ElementUtils.y(child) + ElementUtils.height(child) + 1;
                 int inspectorHeight = textRenderer.fontHeight * 2 + 4;
