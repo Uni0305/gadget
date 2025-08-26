@@ -5,8 +5,6 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.util.UISounds;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.RotationAxis;
-import org.joml.Matrix3x2fc;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
