@@ -60,3 +60,4 @@ public class GadgetTestmodClient implements ClientModInitializer {
             // Do nothing.
         });
     }
+}
