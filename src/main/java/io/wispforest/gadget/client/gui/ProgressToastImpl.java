@@ -20,65 +20,96 @@ public class ProgressToastImpl implements Toast, ProgressToast {
     private OwoUIAdapter<FlowLayout> adapter;
     private final MinecraftClient client = MinecraftClient.getInstance();
     private boolean attached = false;
+    private final Text headText;
 
     private LabelComponent stepLabel;
     private BoxComponent progressBox;
     private long stopTime = 0;
     private LongSupplier following = null;
     private long followingTotal = 0;
+    private Text currentStepText = Text.empty();
 
     private Visibility visibility = Visibility.HIDE;
 
     public ProgressToastImpl(Text headText) {
-        this.adapter = OwoUIAdapter.createWithoutScreen(0, 0, 160, 32, Containers::verticalFlow);
+        this.headText = headText;
+        try {
+            this.adapter = OwoUIAdapter.createWithoutScreen(0, 0, 160, 32, Containers::verticalFlow);
 
-        var root = this.adapter.rootComponent;
+            var root = this.adapter.rootComponent;
 
-        root
-            .child(Components.label(headText)
-                .maxWidth(160)
-                .horizontalTextAlignment(HorizontalAlignment.CENTER)
-                .color(Color.WHITE)
-                .margins(Insets.bottom(0)))
-            .child(stepLabel = Components.label(Text.empty())
-                .maxWidth(160)
-                .horizontalTextAlignment(HorizontalAlignment.CENTER)
-                .color(Color.WHITE))
-            .child((progressBox = Components.box(Sizing.fixed(0), Sizing.fixed(3)))
-                .color(Color.WHITE)
-                .fill(true)
-                .positioning(Positioning.absolute(0, 15)))
-            .surface(Surface.VANILLA_TRANSLUCENT.and(Surface.outline(0xFF5800FF)))
-            .allowOverflow(true)
-            .horizontalAlignment(HorizontalAlignment.CENTER)
-            .verticalAlignment(VerticalAlignment.CENTER)
-            .padding(Insets.of(10));
+            root
+                .child(Components.label(headText)
+                    .maxWidth(160)
+                    .horizontalTextAlignment(HorizontalAlignment.CENTER)
+                    .color(Color.WHITE)
+                    .margins(Insets.bottom(0)))
+                .child(stepLabel = Components.label(Text.empty())
+                    .maxWidth(160)
+                    .horizontalTextAlignment(HorizontalAlignment.CENTER)
+                    .color(Color.WHITE))
+                .child((progressBox = Components.box(Sizing.fixed(0), Sizing.fixed(3)))
+                    .color(Color.WHITE)
+                    .fill(true)
+                    .positioning(Positioning.absolute(0, 15)))
+                .surface(Surface.VANILLA_TRANSLUCENT.and(Surface.outline(0xFF5800FF)))
+                .allowOverflow(true)
+                .horizontalAlignment(HorizontalAlignment.CENTER)
+                .verticalAlignment(VerticalAlignment.CENTER)
+                .padding(Insets.of(10));
 
-        this.adapter.inflateAndMount();
+            this.adapter.inflateAndMount();
+        } catch (Exception e) {
+            // If adapter creation fails, set to null to use fallback rendering
+            this.adapter = null;
+            this.stepLabel = null;
+            this.progressBox = null;
+        }
     }
 
     @Override
     public void draw(DrawContext context, TextRenderer textRenderer, long startTime) {
         long value = following == null ? -1 : following.getAsLong();
 
+        // Draw background and border
         context.fill(0, 0, 160, 32, 0xBF000000);
         context.drawBorder(0, 0, 160, 32, 0xFF5800FF);
 
+        // Draw progress bar
         int progressWidth = value < 0 ? 0 : (int) (value * 140 / followingTotal);
         context.fill(10, 25, 10 + progressWidth, 28, Color.WHITE.argb());
 
+        // Draw head text (try from adapter first, then fallback)
+        Text headToRender = headText;
         if (adapter != null && adapter.rootComponent != null && !adapter.rootComponent.children().isEmpty()) {
-            LabelComponent headLabel = (LabelComponent) adapter.rootComponent.children().getFirst();
-            String headTextStr = headLabel.text().getString();
+            try {
+                LabelComponent headLabel = (LabelComponent) adapter.rootComponent.children().getFirst();
+                if (headLabel != null && headLabel.text() != null) {
+                    headToRender = headLabel.text();
+                }
+            } catch (Exception e) {
+                // Use stored headText as fallback
+            }
+        }
+        
+        if (headToRender != null) {
+            String headTextStr = headToRender.getString();
             int headTextWidth = textRenderer.getWidth(headTextStr);
             int headTextX = (160 - headTextWidth) / 2;
-            context.drawText(textRenderer, headLabel.text(), headTextX, 8, Color.WHITE.argb(), false);
+            context.drawText(textRenderer, headToRender, headTextX, 8, Color.WHITE.argb(), false);
         }
+        
+        // Draw step text (try from stepLabel first, then fallback)
+        Text stepToRender = currentStepText;
         if (stepLabel != null && stepLabel.text() != null && !stepLabel.text().getString().isEmpty()) {
-            String stepTextStr = stepLabel.text().getString();
+            stepToRender = stepLabel.text();
+        }
+        
+        if (stepToRender != null && !stepToRender.getString().isEmpty()) {
+            String stepTextStr = stepToRender.getString();
             int stepTextWidth = textRenderer.getWidth(stepTextStr);
             int stepTextX = (160 - stepTextWidth) / 2;
-            context.drawText(textRenderer, stepLabel.text(), stepTextX, 16, Color.WHITE.argb(), false);
+            context.drawText(textRenderer, stepToRender, stepTextX, 16, Color.WHITE.argb(), false);
         }
     }
 
@@ -106,12 +137,17 @@ public class ProgressToastImpl implements Toast, ProgressToast {
     @Override
     public void step(Text text) {
         MinecraftClient.getInstance().execute(() -> {
+            this.currentStepText = text; // Store for fallback rendering
+            
             if (!attached) {
                 MinecraftClient.getInstance().getToastManager().add(this);
                 attached = true;
             }
 
-            this.stepLabel.text(text);
+            // Safely update step label
+            if (this.stepLabel != null) {
+                this.stepLabel.text(text);
+            }
             this.following = null;
         });
 
@@ -138,7 +174,10 @@ public class ProgressToastImpl implements Toast, ProgressToast {
     @Override
     public void finish(Text text, boolean hideImmediately) {
         MinecraftClient.getInstance().execute(() -> {
-            this.stepLabel.text(text);
+            this.currentStepText = text; // Store for fallback rendering
+            if (this.stepLabel != null) {
+                this.stepLabel.text(text);
+            }
             this.following = null;
             stopTime = hideImmediately ? -2 : -1;
         });
