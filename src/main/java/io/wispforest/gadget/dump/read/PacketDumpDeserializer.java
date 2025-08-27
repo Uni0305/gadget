@@ -106,7 +106,10 @@ public class PacketDumpDeserializer {
                 } else if (packet instanceof LoginQueryResponseC2SPacket res) {
                     channelId = loginQueryChannels.get(res.queryId());
                 } else if (packet instanceof GadgetDynamicRegistriesPacket dyn) {
-                    registries = MinecraftClient.getInstance().world.getRegistryManager();
+                    var world = MinecraftClient.getInstance().world;
+                    if (world != null) {
+                        registries = world.getRegistryManager();
+                    }
                 }
 
                 if (packet instanceof FakeGadgetPacket fake && fake.isVirtual()) continue;
