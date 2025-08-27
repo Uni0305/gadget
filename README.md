@@ -53,3 +53,12 @@ owo is documented in two main ways:
  - **Packet Dumper** - capture, save and review network traffic in-game
  
 *More to come, so stay tuned!*
+
+## Troubleshooting
+
+### Toast UI Issues
+If you experience problems with toast notifications (the popup messages that appear when starting/stopping packet dumps or other operations), gadget includes robust fallback rendering to ensure messages are always visible. In rare cases where the UI adapter fails, toasts will automatically switch to a simple rendering mode while maintaining full functionality.
+
+If toasts are still not appearing, you can test them manually using the testmod commands:
+- `/gadget-testmod test-notification` - Test basic notification toasts
+- `/gadget-testmod test-progress` - Test progress toasts with steps
