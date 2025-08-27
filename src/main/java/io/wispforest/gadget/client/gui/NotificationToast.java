@@ -20,10 +20,11 @@ public class NotificationToast implements Toast {
     private Visibility visibility = Visibility.HIDE;
 
     public NotificationToast(Text headText, Text messageText) {
+        OwoUIAdapter<FlowLayout> adapter;
         try {
-            this.adapter = OwoUIAdapter.createWithoutScreen(0, 0, 160, 32, Containers::verticalFlow);
+            adapter = OwoUIAdapter.createWithoutScreen(0, 0, 160, 32, Containers::verticalFlow);
 
-            var root = this.adapter.rootComponent;
+            var root = adapter.rootComponent;
 
             root
                 .child(Components.label(headText)
@@ -38,13 +39,14 @@ public class NotificationToast implements Toast {
             if (messageText != null)
                 root.child(Components.label(messageText));
 
-            this.adapter.inflateAndMount();
+            adapter.inflateAndMount();
         } catch (Exception e) {
             // If adapter creation fails, set to null for fallback rendering
-            this.adapter = null;
+            adapter = null;
         }
         
         // Store texts for fallback rendering
+        this.adapter = adapter;
         this.headText = headText;
         this.messageText = messageText;
     }
