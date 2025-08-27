@@ -51,8 +51,13 @@ public class FieldDataScreen extends BaseOwoScreen<FlowLayout> {
 
         if (!isClient)
             dataSource = new RemoteFieldDataSource(target, rootData, initialFields);
-        else
-            dataSource = new LocalFieldDataSource(target.resolve(MinecraftClient.getInstance().world), isMutable);
+        else {
+            var world = MinecraftClient.getInstance().world;
+            if (world == null) {
+                throw new IllegalStateException("Cannot open local field data screen without a loaded world");
+            }
+            dataSource = new LocalFieldDataSource(target.resolve(world), isMutable);
+        }
 
         this.island = new FieldDataIsland(
             dataSource,
