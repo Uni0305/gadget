@@ -6,9 +6,12 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
-archivesBaseName = project.archives_base_name
 version = "${project.mod_version}+${project.minecraft_version}"
 group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
 
 repositories {
 	// Add repositories to retrieve artifacts from in here.
