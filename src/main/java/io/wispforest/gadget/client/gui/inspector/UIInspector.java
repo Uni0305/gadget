@@ -133,8 +133,6 @@ public class UIInspector {
             if (!ElementUtils.isVisible(child)) continue;
             if (ElementUtils.x(child) == -1) continue;
 
-            ctx.getMatrices().translate(0, 0, 1000);
-
             ctx.drawRectOutline(ElementUtils.x(child), ElementUtils.y(child), ElementUtils.width(child), ElementUtils.height(child), 0xFF3AB0FF);
 
             if (onlyHovered) {
@@ -158,7 +156,6 @@ public class UIInspector {
                 ctx.drawText(textRenderer, nameText, inspectorX + 2, inspectorY + 2, 0xFFFFFF, false);
                 ctx.drawText(textRenderer, descriptor, inspectorX + 2, inspectorY + textRenderer.fontHeight + 2, 0xFFFFFF, false);
             }
-            ctx.getMatrices().translate(0, 0, -1000);
         }
     }
 }

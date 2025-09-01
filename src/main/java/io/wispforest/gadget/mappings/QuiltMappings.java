@@ -41,7 +41,7 @@ import java.nio.file.Path;
 import java.util.zip.GZIPInputStream;
 
 public class QuiltMappings extends LoadingMappings {
-    private static final String QM_API_ENTRYPOINT = "https://meta.quiltmc.org/v3/versions/quilt-mappings/" + SharedConstants.getGameVersion().getId();
+    private static final String QM_API_ENTRYPOINT = "https://meta.quiltmc.org/v3/versions/quilt-mappings/" + SharedConstants.getGameVersion().id();
 
     @Override
     protected void load(ProgressToast toast, MappingVisitor visitor) {
@@ -50,7 +50,7 @@ public class QuiltMappings extends LoadingMappings {
 
             Files.createDirectories(mappingsDir);
 
-            Path qmPath = mappingsDir.resolve("qm-" + SharedConstants.getGameVersion().getId() + ".tiny");
+            Path qmPath = mappingsDir.resolve("qm-" + SharedConstants.getGameVersion().id() + ".tiny");
 
             if (Files.exists(qmPath)) {
                 try (BufferedReader br = Files.newBufferedReader(qmPath)) {

@@ -205,7 +205,7 @@ public class NbtDataIsland extends FlowLayout {
         var copyLabel = Components.label(Text.literal("C"));
         copyLabel.tooltip(Text.translatable("chat.copy.click"));
         GuiUtil.semiButton(copyLabel, () -> {
-             MinecraftClient.getInstance().keyboard.setClipboard(path.follow(data).asString().orElseThrow());
+             MinecraftClient.getInstance().keyboard.setClipboard(path.follow(data).toString());
         });
         row.child(copyLabel);
 
