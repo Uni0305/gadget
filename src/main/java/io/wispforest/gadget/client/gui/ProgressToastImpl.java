@@ -4,66 +4,45 @@ import io.wispforest.gadget.util.ProgressToast;
 import io.wispforest.owo.ui.component.BoxComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.LabelComponent;
-import io.wispforest.owo.ui.container.Containers;
-import io.wispforest.owo.ui.container.FlowLayout;
-import io.wispforest.owo.ui.core.Color;
-import io.wispforest.owo.ui.core.HorizontalAlignment;
-import io.wispforest.owo.ui.core.Insets;
-import io.wispforest.owo.ui.core.OwoUIAdapter;
-import io.wispforest.owo.ui.core.Positioning;
-import io.wispforest.owo.ui.core.Sizing;
-import io.wispforest.owo.ui.core.Surface;
-import io.wispforest.owo.ui.core.VerticalAlignment;
+import io.wispforest.owo.ui.core.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.toast.Toast;
-import net.minecraft.client.toast.ToastManager;
 import net.minecraft.text.Text;
 
 import java.util.function.LongSupplier;
 
-public class ProgressToastImpl implements Toast, ProgressToast {
-    private OwoUIAdapter<FlowLayout> adapter;
+public class ProgressToastImpl extends BaseGadgetToast.VerticalFlow<ProgressToastImpl> implements ProgressToast {
+    private static final int NEVER_STOP = -1;
+    private static final int STOP_NOW = -2;
+    private static final int STOP_DELAYED = -3;
     private final MinecraftClient client = MinecraftClient.getInstance();
     private boolean attached = false;
 
     private LabelComponent stepLabel;
     private BoxComponent progressBox;
-    private long stopTime = 0;
+    private long stopTime = NEVER_STOP;
     private LongSupplier following = null;
     private long followingTotal = 0;
 
-    private Visibility visibility = Visibility.HIDE;
-
     public ProgressToastImpl(Text headText) {
-        this.adapter = OwoUIAdapter.createWithoutScreen(0, 0, 160, 32, Containers::verticalFlow);
+        super(ProgressToastImpl::isVisible);
 
-        var root = this.adapter.rootComponent;
-
-        root
+        rootComponent
             .child(Components.label(headText)
-                .maxWidth(160)
-                .horizontalTextAlignment(HorizontalAlignment.CENTER)
-                .margins(Insets.bottom(0)))
-            .child(stepLabel = Components.label(Text.empty())
-                .maxWidth(160)
-                .horizontalTextAlignment(HorizontalAlignment.CENTER))
+                    .horizontalTextAlignment(HorizontalAlignment.CENTER)
+                    .margins(Insets.bottom(0)))
+                .child((stepLabel = Components.label(Text.empty())).horizontalTextAlignment(HorizontalAlignment.CENTER))
             .child((progressBox = Components.box(Sizing.fixed(0), Sizing.fixed(3)))
-                .color(Color.WHITE)
-                .fill(true)
-                .positioning(Positioning.absolute(0, 15)))
-            .surface(Surface.VANILLA_TRANSLUCENT.and(Surface.outline(0xFF5800FF)))
-            .allowOverflow(true)
-            .horizontalAlignment(HorizontalAlignment.CENTER)
-            .verticalAlignment(VerticalAlignment.CENTER)
-            .padding(Insets.of(10));
+                    .color(Color.WHITE)
+                    .fill(true)
+                    .positioning(Positioning.absolute(0, 15)));
 
-        this.adapter.inflateAndMount();
+        this.inflateAndMount();
     }
 
     @Override
-    public void draw(DrawContext context, TextRenderer textRenderer, long startTime) {
+    public void draw(DrawContext context, TextRenderer textRenderer, long time) {
         long value = following == null ? -1 : following.getAsLong();
 
         if (value < 0) {
@@ -73,28 +52,20 @@ public class ProgressToastImpl implements Toast, ProgressToast {
             progressBox.horizontalSizing(Sizing.fixed((int) (value * 140 / followingTotal)));
         }
 
-        this.adapter.render(context, 0, 0, client.getRenderTickCounter().getTickProgress(false));
+        super.draw(context, textRenderer, time);
     }
 
-    @Override
-    public void update(ToastManager manager, long time) {
-        if (stopTime == -1) {
-            stopTime = time + 1;
-        }  else if (stopTime == -2) {
-            this.visibility = Visibility.HIDE;
-            return;
-        }
-
-        if (stopTime == 0) {
-            this.visibility = Visibility.SHOW;
+    private boolean isVisible(long time) {
+        if (stopTime == STOP_DELAYED) {
+            stopTime = time + 2500;
+            return true;
+        } else if (stopTime == STOP_NOW) {
+            return false;
+        } else if (stopTime == NEVER_STOP) {
+            return true;
         } else {
-            this.visibility = time - stopTime > 2500 ? Visibility.HIDE : Visibility.SHOW;
+            return time < stopTime;
         }
-    }
-
-    @Override
-    public Visibility getVisibility() {
-        return this.visibility;
     }
 
     @Override
@@ -108,7 +79,6 @@ public class ProgressToastImpl implements Toast, ProgressToast {
             this.stepLabel.text(text);
             this.following = null;
         });
-
     }
 
     @Override
@@ -134,17 +104,19 @@ public class ProgressToastImpl implements Toast, ProgressToast {
         MinecraftClient.getInstance().execute(() -> {
             this.stepLabel.text(text);
             this.following = null;
-            stopTime = hideImmediately ? -2 : -1;
+            System.out.println("Finish");
+            stopTime = hideImmediately ? STOP_NOW : STOP_DELAYED;
         });
     }
 
     public void oom(OutOfMemoryError oom) {
-        adapter.rootComponent.clearChildren();
-        client.currentScreen.removed();
-        client.currentScreen = null;
+        rootComponent.clearChildren();
+        if (client.currentScreen != null) {
+            client.currentScreen.removed();
+            client.currentScreen = null;
+        }
 
         following = null;
-        adapter = null;
         stepLabel = null;
         progressBox = null;
 
