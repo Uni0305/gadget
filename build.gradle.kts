@@ -1,5 +1,5 @@
 plugins {
-	id("fabric-loom") version "1.10-SNAPSHOT"
+	id("fabric-loom") version "1.11-SNAPSHOT"
 	id("maven-publish")
 }
 
@@ -82,7 +82,7 @@ dependencies {
 //	modLocalRuntime "me.shedaniel:RoughlyEnoughItems-fabric:9.1.530"
 //	modLocalRuntime "dev.architectury:architectury-fabric:6.3.49"
 //	modLocalRuntime "com.glisco:things:0.2.20+1.19"
-	modLocalRuntime("me.shedaniel.cloth:cloth-config-fabric:${property("cloth_config")}")
+//	modLocalRuntime("me.shedaniel.cloth:cloth-config-fabric:${property("cloth_config")}")
 //	modLocalRuntime "maven.modrinth:auth-me:${property("auth_me}"
 
 	"testmodImplementation"(sourceSets.main.map { it.output })
