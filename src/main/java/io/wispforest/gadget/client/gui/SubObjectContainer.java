@@ -4,13 +4,14 @@ import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.CursorStyle;
+import io.wispforest.owo.ui.core.HorizontalAlignment;
 import io.wispforest.owo.ui.core.Insets;
 import io.wispforest.owo.ui.core.OwoUIDrawContext;
 import io.wispforest.owo.ui.core.Sizing;
 import io.wispforest.owo.ui.core.Surface;
 import io.wispforest.owo.ui.util.UISounds;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.RotationAxis;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ public class SubObjectContainer extends FlowLayout {
         this.spinnyBoi = new SpinnyBoiComponent();
         this.spinnyBoi
                 .cursorStyle(CursorStyle.HAND);
+        this.spinnyBoi.sizing(Sizing.fixed(9));
 
         this.expanded = false;
         this.spinnyBoi.targetRotation = 0;
@@ -145,17 +147,27 @@ public class SubObjectContainer extends FlowLayout {
         public SpinnyBoiComponent() {
             super(Text.literal(">"));
             this.margins(Insets.horizontal(4));
+            this.horizontalTextAlignment(HorizontalAlignment.CENTER);
         }
 
         @Override
         public void update(float delta, int mouseX, int mouseY) {
             super.update(delta, mouseX, mouseY);
-            this.rotation += (this.targetRotation - this.rotation) * delta * .65;
+            this.rotation += (float) ((this.targetRotation - this.rotation) * delta * .65);
+        }
+
+        @Override
+        protected Style styleAt(int mouseX, int mouseY) {
+            // Fix for owo-ui bug (NPE crash when mouse click is called for mouse position not over text)
+            return Style.EMPTY;
         }
 
         @Override
         public void draw(OwoUIDrawContext ctx, int mouseX, int mouseY, float partialTicks, float delta) {
             ctx.getMatrices().pushMatrix();
+
+            ctx.getMatrices().translateLocal(1F, 0);
+
             ctx.getMatrices().translate(this.x + this.width / 2f - 1, this.y + this.height / 2f - 1);
             ctx.getMatrices().rotate((float) Math.toRadians(this.rotation));
             ctx.getMatrices().translate(-(this.x + this.width / 2f - 1), -(this.y + this.height / 2f - 1));
