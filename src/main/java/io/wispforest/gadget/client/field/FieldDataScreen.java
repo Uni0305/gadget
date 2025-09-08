@@ -1,6 +1,7 @@
 package io.wispforest.gadget.client.field;
 
 import com.google.gson.stream.JsonWriter;
+import io.wispforest.gadget.client.GadgetSurfaces;
 import io.wispforest.gadget.client.gui.EventEaterWrapper;
 import io.wispforest.gadget.client.gui.SaveFilePathComponent;
 import io.wispforest.gadget.client.gui.SidebarBuilder;
@@ -79,7 +80,7 @@ public class FieldDataScreen extends BaseOwoScreen<FlowLayout> {
         verticalFlowLayout
             .horizontalAlignment(HorizontalAlignment.CENTER)
             .verticalAlignment(VerticalAlignment.CENTER)
-            .surface(Surface.VANILLA_TRANSLUCENT);
+            .surface(GadgetSurfaces.OPTIONS_BACKGROUND);
 
 
         FlowLayout main = Containers.verticalFlow(Sizing.fill(100), Sizing.content());

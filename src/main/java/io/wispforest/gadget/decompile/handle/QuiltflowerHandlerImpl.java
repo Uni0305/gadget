@@ -51,6 +51,7 @@ public class QuiltflowerHandlerImpl implements io.wispforest.gadget.decompile.Qu
             MappingsManager.runtimeMappings().accept(mappings);
 
             mappings.visitNamespaces("intermediary", List.of("source"));
+            mappings.visitEnd();
             int srcId = mappings.getNamespaceId("source");
 
             for (MappingTree.ClassMapping c : mappings.getClasses()) {

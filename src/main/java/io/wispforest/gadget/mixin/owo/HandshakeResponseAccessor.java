@@ -8,12 +8,12 @@ import java.util.Map;
 
 @Mixin(targets = "io.wispforest.owo.network.OwoHandshake$HandshakeResponse")
 public interface HandshakeResponseAccessor {
-    @Accessor
+    @Accessor(remap = false)
     Map<Identifier, Integer> getRequiredChannels();
 
-    @Accessor
+    @Accessor(remap = false)
     Map<Identifier, Integer> getRequiredControllers();
 
-    @Accessor
+    @Accessor(remap = false)
     Map<Identifier, Integer> getOptionalChannels();
 }

@@ -1,10 +1,21 @@
 package io.wispforest.gadget.client.dump;
 
 import io.wispforest.gadget.Gadget;
-import io.wispforest.gadget.client.gui.*;
+import io.wispforest.gadget.client.GadgetSurfaces;
+import io.wispforest.gadget.client.gui.BasedSliderComponent;
+import io.wispforest.gadget.client.gui.BasedVerticalFlowLayout;
+import io.wispforest.gadget.client.gui.EventEaterWrapper;
+import io.wispforest.gadget.client.gui.NotificationToast;
+import io.wispforest.gadget.client.gui.SaveFilePathComponent;
+import io.wispforest.gadget.client.gui.SidebarBuilder;
 import io.wispforest.gadget.dump.read.DumpedPacket;
 import io.wispforest.gadget.dump.read.PacketDumpReader;
-import io.wispforest.gadget.util.*;
+import io.wispforest.gadget.util.CancellationToken;
+import io.wispforest.gadget.util.CancellationTokenSource;
+import io.wispforest.gadget.util.FormattedDumper;
+import io.wispforest.gadget.util.ProgressToast;
+import io.wispforest.gadget.util.ReactiveUtils;
+import io.wispforest.gadget.util.TimeUtil;
 import io.wispforest.owo.ui.base.BaseOwoScreen;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.LabelComponent;
@@ -13,7 +24,15 @@ import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.OverlayContainer;
 import io.wispforest.owo.ui.container.ScrollContainer;
-import io.wispforest.owo.ui.core.*;
+import io.wispforest.owo.ui.core.Color;
+import io.wispforest.owo.ui.core.Component;
+import io.wispforest.owo.ui.core.HorizontalAlignment;
+import io.wispforest.owo.ui.core.Insets;
+import io.wispforest.owo.ui.core.OwoUIAdapter;
+import io.wispforest.owo.ui.core.OwoUIDrawContext;
+import io.wispforest.owo.ui.core.Sizing;
+import io.wispforest.owo.ui.core.Surface;
+import io.wispforest.owo.ui.core.VerticalAlignment;
 import io.wispforest.owo.util.Observable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -104,7 +123,7 @@ public class OpenDumpScreen extends BaseOwoScreen<FlowLayout> {
         rootComponent
             .horizontalAlignment(HorizontalAlignment.CENTER)
             .verticalAlignment(VerticalAlignment.CENTER)
-            .surface(Surface.VANILLA_TRANSLUCENT);
+            .surface(GadgetSurfaces.OPTIONS_BACKGROUND);
 
         this.main = new BasedVerticalFlowLayout(Sizing.fill(100), Sizing.content());
         ScrollContainer<FlowLayout> scroll = Containers.verticalScroll(Sizing.fill(95), Sizing.fill(90), this.main)
@@ -160,7 +179,7 @@ public class OpenDumpScreen extends BaseOwoScreen<FlowLayout> {
             public void drawTooltip(OwoUIDrawContext ctx, int mouseX, int mouseY, float partialTicks, float delta) {
                 frameNumber++;
 
-                if (!this.shouldDrawTooltip(mouseX, mouseY)) return;
+                if (!this.isInBoundingBox(mouseX, mouseY)) return;
 
                 if (frameNumber > 9) {
                     frameNumber = 0;

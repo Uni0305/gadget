@@ -15,7 +15,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.state.NetworkState;
 
 public final class PacketDumping {
-    private static final Int2ObjectMap<PacketCodec<ByteBuf, ? extends FakeGadgetPacket>> PACKETS = new Int2ObjectOpenHashMap<>();
+    private static final Int2ObjectMap<PacketCodec<PacketByteBuf, ? extends FakeGadgetPacket>> PACKETS = new Int2ObjectOpenHashMap<>();
 
     private PacketDumping() {
 
@@ -28,7 +28,7 @@ public final class PacketDumping {
 
     }
 
-    public static void register(int id, PacketCodec<ByteBuf, ? extends FakeGadgetPacket> codec) {
+    public static void register(int id, PacketCodec<PacketByteBuf, ? extends FakeGadgetPacket> codec) {
         if (PACKETS.put(id, codec) != null) {
             throw new IllegalStateException("Codec on " + id + " collides with another codec");
         }
@@ -43,7 +43,7 @@ public final class PacketDumping {
             if (packet instanceof FakeGadgetPacket fakePacket) {
                 packetId = fakePacket.id();
                 buf.writeVarInt(packetId);
-                ((PacketCodec<ByteBuf, FakeGadgetPacket>) fakePacket.codec()).encode(buf, fakePacket);
+                ((PacketCodec<PacketByteBuf, FakeGadgetPacket>) fakePacket.codec()).encode(buf, fakePacket);
                 return;
             }
 
@@ -64,7 +64,7 @@ public final class PacketDumping {
         int packetId = buf.readVarInt();
 
         try {
-            PacketCodec<ByteBuf, ? extends FakeGadgetPacket> fakeCodec = PACKETS.get(packetId);
+            PacketCodec<PacketByteBuf, ? extends FakeGadgetPacket> fakeCodec = PACKETS.get(packetId);
             if (fakeCodec != null) {
                 return fakeCodec.decode(buf).unwrapVanilla();
             }

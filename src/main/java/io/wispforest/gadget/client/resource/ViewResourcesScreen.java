@@ -1,6 +1,7 @@
 package io.wispforest.gadget.client.resource;
 
 import io.wispforest.gadget.Gadget;
+import io.wispforest.gadget.client.GadgetSurfaces;
 import io.wispforest.gadget.client.gui.GuiUtil;
 import io.wispforest.gadget.client.gui.SubObjectContainer;
 import io.wispforest.owo.ui.base.BaseOwoScreen;
@@ -8,7 +9,11 @@ import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.ScrollContainer;
-import io.wispforest.owo.ui.core.*;
+import io.wispforest.owo.ui.core.Color;
+import io.wispforest.owo.ui.core.Insets;
+import io.wispforest.owo.ui.core.OwoUIAdapter;
+import io.wispforest.owo.ui.core.Sizing;
+import io.wispforest.owo.ui.core.Surface;
 import io.wispforest.owo.ui.util.UISounds;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.texture.NativeImage;
@@ -56,7 +61,7 @@ public class ViewResourcesScreen extends BaseOwoScreen<FlowLayout> {
     @Override
     protected void build(FlowLayout rootComponent) {
         rootComponent
-            .surface(Surface.VANILLA_TRANSLUCENT)
+            .surface(GadgetSurfaces.OPTIONS_BACKGROUND)
             .padding(Insets.of(5));
 
         FlowLayout tree = Containers.verticalFlow(Sizing.content(), Sizing.content());
@@ -108,17 +113,7 @@ public class ViewResourcesScreen extends BaseOwoScreen<FlowLayout> {
     }
 
     private FlowLayout makeRecipeRow(String name, Identifier key, int index) {
-        var row = Containers.horizontalFlow(Sizing.content(), Sizing.content());
-        var fileLabel = Components.label(Text.literal(name));
-
-        row.child(fileLabel);
-        row.mouseEnter().subscribe(
-            () -> row.surface(Surface.flat(0x80ffffff)));
-
-        row.mouseLeave().subscribe(
-            () -> row.surface(Surface.BLANK));
-
-        row.mouseDown().subscribe((mouseX, mouseY, button) -> {
+        return GuiUtil.makeRecipeRow(name, (row, label, mouseX, mouseY, button) -> {
             if (button != GLFW.GLFW_MOUSE_BUTTON_LEFT) return false;
 
             UISounds.playInteractionSound();
@@ -127,8 +122,6 @@ public class ViewResourcesScreen extends BaseOwoScreen<FlowLayout> {
 
             return true;
         });
-
-        return row;
     }
 
     public void openFile(Identifier id, Callable<InputStream> isGetter) {
@@ -143,7 +136,7 @@ public class ViewResourcesScreen extends BaseOwoScreen<FlowLayout> {
                 contents.clearChildren();
 
                 if (id.getPath().endsWith(".png")) {
-                    prevTexture = new NativeImageBackedTexture(id::toString,NativeImage.read(is));
+                    prevTexture = new NativeImageBackedTexture(null, NativeImage.read(is));
                     client.getTextureManager().registerTexture(FILE_TEXTURE_ID, prevTexture);
 
                     contents

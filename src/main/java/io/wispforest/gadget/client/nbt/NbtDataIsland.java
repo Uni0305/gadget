@@ -168,8 +168,9 @@ public class NbtDataIsland extends FlowLayout {
                                 (int) (plusLabel.y() + mouseY),
                                 type -> widgetData.subContainer.child(new KeyAdderWidget(this, path, type, nameVerifier)));
                         } else {
-                            widgetData.subContainer.child(
-                                new KeyAdderWidget(this, path, NbtTypes.byId(list.getType()), nameVerifier));
+                            // TODO reimplement after 1.21.5
+//                            widgetData.subContainer.child(
+//                                new KeyAdderWidget(this, path, null, nameVerifier));
                         }
                     } else if (list instanceof NbtByteArray) {
                         widgetData.subContainer.child(

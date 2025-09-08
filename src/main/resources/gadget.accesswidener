@@ -2,3 +2,4 @@ accessWidener v2 named
 
 accessible class net/minecraft/client/gui/screen/ingame/CreativeInventoryScreen$LockableSlot
 accessible class net/minecraft/client/gui/widget/EntryListWidget$Entry
+accessible method net/minecraft/registry/tag/TagPacketSerializer serializeTags (Lnet/minecraft/registry/Registry;)Lnet/minecraft/registry/tag/TagPacketSerializer$Serialized;

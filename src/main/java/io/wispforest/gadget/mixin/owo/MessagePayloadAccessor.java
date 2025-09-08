@@ -5,6 +5,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(targets = "io.wispforest.owo.network.OwoNetChannel$MessagePayload")
 public interface MessagePayloadAccessor {
-    @Accessor
+    @Accessor(remap = false)
     Record getMessage();
 }

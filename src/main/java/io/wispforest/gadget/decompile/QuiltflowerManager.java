@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -69,7 +70,7 @@ public final class QuiltflowerManager {
         if (cl == null) {
             try {
                 var classUrl = Gadget.class.getClassLoader().getResource("io/wispforest/gadget/Gadget.class").toString();
-                var dirUrl = new URL(classUrl.replace("io/wispforest/gadget/Gadget.class", ""));
+                var dirUrl = URI.create(classUrl.replace("io/wispforest/gadget/Gadget.class", "")).toURL();
 
                 cl = new OpenedURLClassLoader(new URL[] {
                     installedPath().toUri().toURL(),

@@ -93,6 +93,9 @@ public class RenderedPacketComponent {
             if (!drawErrors.isEmpty()
                 || packet.packet() instanceof GadgetReadErrorPacket
                 || packet.packet() instanceof GadgetWriteErrorPacket) {
+                for (var drawError : drawErrors) {
+                    drawError.printStackTrace();
+                }
                 CollapsibleContainer errors = Containers.collapsible(
                     Sizing.content(),
                     Sizing.content(),
