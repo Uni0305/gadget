@@ -37,7 +37,11 @@ public class StackComponentDataScreen extends BaseOwoScreen<FlowLayout> {
         var stack = slot.getStack();
         Consumer<NbtCompound> reloader = null;
 
-        var registries = MinecraftClient.getInstance().world.getRegistryManager();
+        var world = MinecraftClient.getInstance().world;
+        if (world == null) {
+            throw new IllegalStateException("Cannot open stack component data screen without a loaded world");
+        }
+        var registries = world.getRegistryManager();
 
         if (ServerData.canReplaceStacks()) {
             reloader = newNbt -> {
