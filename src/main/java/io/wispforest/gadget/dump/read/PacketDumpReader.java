@@ -35,9 +35,9 @@ public class PacketDumpReader {
             Gadget.LOGGER.error("Encountered IO error while reading dump, results may be incomplete", raw.finalError());
         }
 
-        if (packets.size() > 0) {
-            startTime = packets.get(0).sentAt();
-            endTime = packets.get(packets.size() - 1).sentAt();
+        if (!packets.isEmpty()) {
+            startTime = packets.getFirst().sentAt();
+            endTime = packets.getLast().sentAt();
         } else {
             startTime = endTime = 0;
         }

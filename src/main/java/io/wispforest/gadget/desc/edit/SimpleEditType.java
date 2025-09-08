@@ -2,7 +2,7 @@ package io.wispforest.gadget.desc.edit;
 
 import java.util.function.Function;
 
-public class SimpleEditType<T> implements PrimitiveEditType<T> {
+public final class SimpleEditType<T> implements PrimitiveEditType<T> {
     private final Function<String, T> fromImpl;
     private final Function<T, String> toImpl;
 

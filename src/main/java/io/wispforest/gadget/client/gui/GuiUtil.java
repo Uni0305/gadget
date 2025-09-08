@@ -8,11 +8,13 @@ import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
+import io.wispforest.owo.ui.event.MouseDown;
 import io.wispforest.owo.ui.util.UISounds;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.glfw.GLFW;
 
@@ -24,6 +26,29 @@ import java.util.function.Predicate;
 public final class GuiUtil {
     private GuiUtil() {
 
+    }
+
+    public static FlowLayout makeRecipeRow(String name, RowMouseDown mouseDown) {
+        var row = Containers.horizontalFlow(Sizing.content(), Sizing.content());
+        var fileLabel = Components.label(Text.of(name));
+
+        row.child(fileLabel);
+        row.mouseEnter().subscribe(() -> {
+            System.out.println("enter");
+            fileLabel.color().animate(500, Easing.CUBIC, Color.BLUE);
+        });
+        row.mouseLeave().subscribe(() -> {
+            System.out.println("leave");
+            fileLabel.color().animate(500, Easing.CUBIC, Color.WHITE);
+        });
+        fileLabel.color(Color.RED);
+
+        row.mouseDown().subscribe((mouseX, mouseY, button) -> mouseDown.down(row, fileLabel, mouseX, mouseY, button));
+        return row;
+    }
+
+    public interface RowMouseDown {
+        boolean down(FlowLayout row, LabelComponent label, double mouseX, double mouseY, int button);
     }
 
     public static void hoverBlue(LabelComponent label) {

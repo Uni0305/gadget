@@ -19,7 +19,7 @@
         "owo.HandshakeResponseAccessor",
         "owo.MessagePayloadAccessor",
         "owo.OwoUIAdapterMixin",
-        "owo.ParentComponentMixin",
+        "owo.OwoUIDrawContextMixin",
         "owo.ParticleSystemAccessor",
         "owo.ParticleSystemInstanceAccessor",
         "owo.ParticleSystemPayloadAccessor"

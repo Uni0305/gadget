@@ -42,110 +42,99 @@ public class RenderedPacketComponent {
     }
 
     public Component component() {
-        if (component == null || component.get() == null) {
-            FlowLayout view = Containers.verticalFlow(Sizing.content(), Sizing.content());
+        var wrapper = component == null ? null : component.get();
+        if (wrapper != null) return wrapper;
 
-            view
-                .padding(Insets.of(5))
-                .surface(Surface.outline(packet.color()))
-                .margins(Insets.bottom(5));
+        FlowLayout view = Containers.verticalFlow(Sizing.content(), Sizing.content());
 
-            MutableText typeText = Text.literal("");
+        view.padding(Insets.of(5)).surface(Surface.outline(packet.color())).margins(Insets.bottom(5));
 
-            if (packet.packet() instanceof GadgetReadErrorPacket errorPacket) {
-                typeText.append(Text.translatable("text.gadget.packet_read_error", errorPacket.packetId()));
-            } else if (packet.packet() instanceof GadgetWriteErrorPacket errorPacket) {
-                typeText.append(Text.translatable("text.gadget.packet_write_error", errorPacket.packetId()));
-            } else {
-                typeText.append(ReflectionUtil.nameWithoutPackage(packet.packet().getClass()));
+        MutableText typeText = Text.literal("");
 
-                if (packet.channelId() != null)
-                    typeText.append(Text.literal(" " + packet.channelId())
-                        .formatted(Formatting.GRAY));
-            }
+        if (packet.packet() instanceof GadgetReadErrorPacket errorPacket) {
+            typeText.append(Text.translatable("text.gadget.packet_read_error", errorPacket.packetId()));
+        } else if (packet.packet() instanceof GadgetWriteErrorPacket errorPacket) {
+            typeText.append(Text.translatable("text.gadget.packet_write_error", errorPacket.packetId()));
+        } else {
+            typeText.append(ReflectionUtil.nameWithoutPackage(packet.packet().getClass()));
 
-            var readerCtx = packet.get(DumpReaderContext.KEY);
+            if (packet.channelId() != null)
+                typeText.append(Text.literal(" " + packet.channelId()).formatted(Formatting.GRAY));
+        }
 
-            if (readerCtx != null) {
-                typeText.append(" ");
+        var readerCtx = packet.get(DumpReaderContext.KEY);
 
-                typeText.append(Text.literal(DurationFormatUtils.formatDuration(packet.sentAt() - readerCtx.reader().startTime(), "mm:ss.SSS"))
+        if (readerCtx != null) {
+            typeText.append(" ");
+
+            typeText.append(Text
+                    .literal(DurationFormatUtils.formatDuration(packet.sentAt() - readerCtx
+                            .reader()
+                            .startTime(), "mm:ss.SSS"))
                     .formatted(Formatting.DARK_GRAY));
-            }
+        }
 
-            var container = new SubObjectContainer(unused -> {}, unused -> {});
+        var container = new SubObjectContainer(unused -> {
+        }, unused -> {
+        });
 
-            container
-                .padding(Insets.of(0))
-                .surface(Surface.BLANK);
+        container.padding(Insets.of(0)).surface(Surface.BLANK);
 
-            container.toggleExpansion();
+        container.toggleExpansion();
 
-            view.child(Containers.horizontalFlow(Sizing.content(), Sizing.content())
+        view.child(Containers
+                .horizontalFlow(Sizing.content(), Sizing.content())
                 .child(new BasedLabelComponent(typeText))
                 .child(container.getSpinnyBoi())
                 .margins(Insets.bottom(3)));
 
 
-            drawErrors.clear();
-            PacketRenderer.EVENT.invoker().renderPacket(packet, container, drawErrors::add);
+        drawErrors.clear();
+        PacketRenderer.EVENT.invoker().renderPacket(packet, container, drawErrors::add);
 
-            if (!drawErrors.isEmpty()
-                || packet.packet() instanceof GadgetReadErrorPacket
-                || packet.packet() instanceof GadgetWriteErrorPacket) {
-                CollapsibleContainer errors = Containers.collapsible(
-                    Sizing.content(),
-                    Sizing.content(),
-                    Text.translatable("text.gadget.packet_errors"),
-                    false
-                );
+        if (!drawErrors.isEmpty() || packet.packet() instanceof GadgetReadErrorPacket || packet.packet() instanceof GadgetWriteErrorPacket) {
+            for (var drawError : drawErrors) {
+                drawError.printStackTrace();
+            }
+            CollapsibleContainer errors = Containers.collapsible(Sizing.content(), Sizing.content(), Text.translatable("text.gadget.packet_errors"), false);
 
-                errors
-                    .padding(Insets.of(2))
-                    .margins(Insets.bottom(5));
+            errors.padding(Insets.of(2)).margins(Insets.bottom(5));
 
-                ((FlowLayout) errors.children().get(0))
-                    .padding(Insets.of(2, 2, 2, 0));
+            ((FlowLayout) errors.children().getFirst()).padding(Insets.of(2, 2, 2, 0));
 
-                if (packet.packet() instanceof GadgetReadErrorPacket error) {
-                    errors.child(GuiUtil.showException(error.exception())
-                        .margins(Insets.bottom(2)));
-                }
-
-                if (packet.packet() instanceof GadgetWriteErrorPacket error) {
-                    errors.child(GuiUtil.showExceptionText(error.exceptionText())
-                        .margins(Insets.bottom(2)));
-                }
-
-                for (var e : packet.get(SearchTextData.KEY).searchTextErrors()) {
-                    errors.child(GuiUtil.showException(e)
-                        .margins(Insets.bottom(2)));
-                }
-
-                for (var e : packet.get(RenderedPacketComponent.KEY).drawErrors()) {
-                    errors.child(GuiUtil.showException(e)
-                        .margins(Insets.bottom(2)));
-                }
-
-                for (var e : packet.get(UnwrappedPacketData.KEY).errors()) {
-                    errors.child(GuiUtil.showException(e)
-                        .margins(Insets.bottom(2)));
-                }
-
-                container.child(0, errors);
+            if (packet.packet() instanceof GadgetReadErrorPacket error) {
+                errors.child(GuiUtil.showException(error.exception()).margins(Insets.bottom(2)));
             }
 
-            view.child(container);
+            if (packet.packet() instanceof GadgetWriteErrorPacket error) {
+                errors.child(GuiUtil.showExceptionText(error.exceptionText()).margins(Insets.bottom(2)));
+            }
 
-            FlowLayout fullRow = Containers.horizontalFlow(Sizing.fill(100), Sizing.content());
+            for (var e : packet.get(SearchTextData.KEY).searchTextErrors()) {
+                errors.child(GuiUtil.showException(e).margins(Insets.bottom(2)));
+            }
 
-            fullRow
+            for (var e : packet.get(RenderedPacketComponent.KEY).drawErrors()) {
+                errors.child(GuiUtil.showException(e).margins(Insets.bottom(2)));
+            }
+
+            for (var e : packet.get(UnwrappedPacketData.KEY).errors()) {
+                errors.child(GuiUtil.showException(e).margins(Insets.bottom(2)));
+            }
+
+            container.child(0, errors);
+        }
+
+        view.child(container);
+
+        FlowLayout fullRow = Containers.horizontalFlow(Sizing.fill(100), Sizing.content());
+
+        fullRow
                 .child(view)
                 .horizontalAlignment(packet.outbound() ? HorizontalAlignment.RIGHT : HorizontalAlignment.LEFT);
 
-            component = new SoftReference<>(new LayoutCacheWrapper<>(fullRow));
-        }
-
-        return component.get();
+        wrapper = new LayoutCacheWrapper<>(fullRow);
+        component = new SoftReference<>(wrapper);
+        return wrapper;
     }
 }

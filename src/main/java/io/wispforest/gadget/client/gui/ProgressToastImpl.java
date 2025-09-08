@@ -4,103 +4,68 @@ import io.wispforest.gadget.util.ProgressToast;
 import io.wispforest.owo.ui.component.BoxComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.LabelComponent;
-import io.wispforest.owo.ui.container.Containers;
-import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.toast.Toast;
-import net.minecraft.client.toast.ToastManager;
 import net.minecraft.text.Text;
 
 import java.util.function.LongSupplier;
 
-public class ProgressToastImpl implements Toast, ProgressToast {
-    private OwoUIAdapter<FlowLayout> adapter;
+public class ProgressToastImpl extends BaseGadgetToast.VerticalFlow<ProgressToastImpl> implements ProgressToast {
+    private static final int NEVER_STOP = -1;
+    private static final int STOP_NOW = -2;
+    private static final int STOP_DELAYED = -3;
     private final MinecraftClient client = MinecraftClient.getInstance();
     private boolean attached = false;
 
     private LabelComponent stepLabel;
     private BoxComponent progressBox;
-    private long stopTime = 0;
+    private long stopTime = NEVER_STOP;
     private LongSupplier following = null;
     private long followingTotal = 0;
 
-    private Visibility visibility = Visibility.HIDE;
-
     public ProgressToastImpl(Text headText) {
-        this.adapter = OwoUIAdapter.createWithoutScreen(0, 0, 160, 32, Containers::verticalFlow);
+        super(ProgressToastImpl::isVisible);
 
-        var root = this.adapter.rootComponent;
-
-        root
+        rootComponent
             .child(Components.label(headText)
-                .maxWidth(160)
-                .horizontalTextAlignment(HorizontalAlignment.CENTER)
-                .color(Color.WHITE)
-                .margins(Insets.bottom(0)))
-            .child(stepLabel = Components.label(Text.empty())
-                .maxWidth(160)
-                .horizontalTextAlignment(HorizontalAlignment.CENTER)
-                .color(Color.WHITE))
+                    .horizontalTextAlignment(HorizontalAlignment.CENTER)
+                    .margins(Insets.bottom(0)))
+                .child((stepLabel = Components.label(Text.empty())).horizontalTextAlignment(HorizontalAlignment.CENTER))
             .child((progressBox = Components.box(Sizing.fixed(0), Sizing.fixed(3)))
-                .color(Color.WHITE)
-                .fill(true)
-                .positioning(Positioning.absolute(0, 15)))
-            .surface(Surface.VANILLA_TRANSLUCENT.and(Surface.outline(0xFF5800FF)))
-            .allowOverflow(true)
-            .horizontalAlignment(HorizontalAlignment.CENTER)
-            .verticalAlignment(VerticalAlignment.CENTER)
-            .padding(Insets.of(10));
+                    .color(Color.WHITE)
+                    .fill(true)
+                    .positioning(Positioning.absolute(0, 15)));
 
-        this.adapter.inflateAndMount();
+        this.inflateAndMount();
     }
 
     @Override
-    public void draw(DrawContext context, TextRenderer textRenderer, long startTime) {
+    public void draw(DrawContext context, TextRenderer textRenderer, long time) {
         long value = following == null ? -1 : following.getAsLong();
 
-        context.fill(0, 0, 160, 32, 0xBF000000);
-        context.drawBorder(0, 0, 160, 32, 0xFF5800FF);
-
-        int progressWidth = value < 0 ? 0 : (int) (value * 140 / followingTotal);
-        context.fill(10, 25, 10 + progressWidth, 28, Color.WHITE.argb());
-
-        if (adapter != null && adapter.rootComponent != null && !adapter.rootComponent.children().isEmpty()) {
-            LabelComponent headLabel = (LabelComponent) adapter.rootComponent.children().getFirst();
-            String headTextStr = headLabel.text().getString();
-            int headTextWidth = textRenderer.getWidth(headTextStr);
-            int headTextX = (160 - headTextWidth) / 2;
-            context.drawText(textRenderer, headLabel.text(), headTextX, 8, Color.WHITE.argb(), false);
-        }
-        if (stepLabel != null && stepLabel.text() != null && !stepLabel.text().getString().isEmpty()) {
-            String stepTextStr = stepLabel.text().getString();
-            int stepTextWidth = textRenderer.getWidth(stepTextStr);
-            int stepTextX = (160 - stepTextWidth) / 2;
-            context.drawText(textRenderer, stepLabel.text(), stepTextX, 16, Color.WHITE.argb(), false);
-        }
-    }
-
-    @Override
-    public void update(ToastManager manager, long time) {
-        if (stopTime == -1) {
-            stopTime = time + 1;
-        }  else if (stopTime == -2) {
-            this.visibility = Visibility.HIDE;
-            return;
-        }
-
-        if (stopTime == 0) {
-            this.visibility = Visibility.SHOW;
+        if (value < 0) {
+            progressBox.horizontalSizing(Sizing.fixed(0));
+            following = null;
         } else {
-            this.visibility = time - stopTime > 2500 ? Visibility.HIDE : Visibility.SHOW;
+            progressBox.horizontalSizing(Sizing.fixed((int) (value * 140 / followingTotal)));
         }
+
+        super.draw(context, textRenderer, time);
     }
 
-    @Override
-    public Visibility getVisibility() {
-        return this.visibility;
+    private boolean isVisible(long time) {
+        if (stopTime == STOP_DELAYED) {
+            stopTime = time + 2500;
+            return true;
+        } else if (stopTime == STOP_NOW) {
+            return false;
+        } else if (stopTime == NEVER_STOP) {
+            return true;
+        } else {
+            return time < stopTime;
+        }
     }
 
     @Override
@@ -114,7 +79,6 @@ public class ProgressToastImpl implements Toast, ProgressToast {
             this.stepLabel.text(text);
             this.following = null;
         });
-
     }
 
     @Override
@@ -140,17 +104,19 @@ public class ProgressToastImpl implements Toast, ProgressToast {
         MinecraftClient.getInstance().execute(() -> {
             this.stepLabel.text(text);
             this.following = null;
-            stopTime = hideImmediately ? -2 : -1;
+            System.out.println("Finish");
+            stopTime = hideImmediately ? STOP_NOW : STOP_DELAYED;
         });
     }
 
     public void oom(OutOfMemoryError oom) {
-        adapter.rootComponent.clearChildren();
-        client.currentScreen.removed();
-        client.currentScreen = null;
+        rootComponent.clearChildren();
+        if (client.currentScreen != null) {
+            client.currentScreen.removed();
+            client.currentScreen = null;
+        }
 
         following = null;
-        adapter = null;
         stepLabel = null;
         progressBox = null;
 

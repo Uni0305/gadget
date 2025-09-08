@@ -2,6 +2,7 @@ package io.wispforest.gadget.client.gui;
 
 import io.wispforest.gadget.Gadget;
 import io.wispforest.gadget.client.DialogUtil;
+import io.wispforest.gadget.client.GadgetSurfaces;
 import io.wispforest.gadget.client.ServerData;
 import io.wispforest.gadget.client.dump.ClientPacketDumper;
 import io.wispforest.gadget.client.dump.OpenDumpScreen;
@@ -48,10 +49,9 @@ public class GadgetScreen extends BaseOwoScreen<FlowLayout> {
     @Override
     protected void build(FlowLayout rootComponent) {
         rootComponent
-            .horizontalAlignment(HorizontalAlignment.CENTER)
-            .verticalAlignment(VerticalAlignment.CENTER)
-            .surface(Surface.VANILLA_TRANSLUCENT);
-
+                .horizontalAlignment(HorizontalAlignment.CENTER)
+                .verticalAlignment(VerticalAlignment.CENTER)
+                .surface(GadgetSurfaces.OPTIONS_BACKGROUND);
 
         FlowLayout main = Containers.verticalFlow(Sizing.fill(100), Sizing.content());
         ScrollContainer<FlowLayout> scroll = Containers.verticalScroll(Sizing.fill(95), Sizing.fill(100), main)

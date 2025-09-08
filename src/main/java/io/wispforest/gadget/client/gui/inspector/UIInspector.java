@@ -1,6 +1,6 @@
 package io.wispforest.gadget.client.gui.inspector;
 
-import com.mojang.blaze3d.opengl.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.wispforest.gadget.Gadget;
 import io.wispforest.gadget.util.ReflectionUtil;
 import io.wispforest.owo.ui.core.OwoUIDrawContext;
@@ -55,7 +55,7 @@ public class UIInspector {
         if (!enabled()) return true;
         if (!Screen.hasShiftDown()) return true;
 
-        childAtOffset += (int) verticalAmount;
+        childAtOffset += verticalAmount;
         if (childAtOffset < 0) childAtOffset = 0;
 
         return false;
@@ -104,7 +104,6 @@ public class UIInspector {
 
         OwoUIDrawContext ctx = OwoUIDrawContext.of(ctxIn);
 
-        GlStateManager._disableDepthTest();
         var client = MinecraftClient.getInstance();
         var textRenderer = client.textRenderer;
 
@@ -118,10 +117,9 @@ public class UIInspector {
         if (onlyHovered) {
             children.removeIf(el -> !ElementUtils.inBoundingBox(el, mouseX, mouseY));
 
-            if (children.isEmpty()) {
-                childAtOffset = 0;
-            } else {
-                childAtOffset = Math.max(0, Math.min(childAtOffset, children.size() - 1));
+            childAtOffset = Math.min(childAtOffset, children.size() - 1);
+
+            if (!children.isEmpty()) {
                 var selected = children.get(childAtOffset);
                 children.clear();
                 children.add(selected);
@@ -135,11 +133,10 @@ public class UIInspector {
             if (!ElementUtils.isVisible(child)) continue;
             if (ElementUtils.x(child) == -1) continue;
 
-            ctx.getMatrices().translate(0, 0, ctx.getMatrices());
-
             ctx.drawRectOutline(ElementUtils.x(child), ElementUtils.y(child), ElementUtils.width(child), ElementUtils.height(child), 0xFF3AB0FF);
 
             if (onlyHovered) {
+
                 int inspectorX = ElementUtils.x(child) + 1;
                 int inspectorY = ElementUtils.y(child) + ElementUtils.height(child) + 1;
                 int inspectorHeight = textRenderer.fontHeight * 2 + 4;
@@ -159,9 +156,6 @@ public class UIInspector {
                 ctx.drawText(textRenderer, nameText, inspectorX + 2, inspectorY + 2, 0xFFFFFF, false);
                 ctx.drawText(textRenderer, descriptor, inspectorX + 2, inspectorY + textRenderer.fontHeight + 2, 0xFFFFFF, false);
             }
-            ctx.getMatrices().translate(0, 0, ctx.getMatrices());
         }
-
-        GlStateManager._enableDepthTest();
     }
 }

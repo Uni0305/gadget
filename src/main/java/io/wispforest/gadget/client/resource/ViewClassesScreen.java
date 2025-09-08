@@ -2,6 +2,7 @@ package io.wispforest.gadget.client.resource;
 
 import io.wispforest.gadget.Gadget;
 import io.wispforest.gadget.client.DialogUtil;
+import io.wispforest.gadget.client.GadgetSurfaces;
 import io.wispforest.gadget.client.gui.GuiUtil;
 import io.wispforest.gadget.client.gui.LayoutCacheWrapper;
 import io.wispforest.gadget.client.gui.SubObjectContainer;
@@ -88,7 +89,7 @@ public class ViewClassesScreen extends BaseOwoScreen<FlowLayout> {
     @Override
     protected void build(FlowLayout rootComponent) {
         rootComponent
-            .surface(Surface.VANILLA_TRANSLUCENT)
+            .surface(GadgetSurfaces.OPTIONS_BACKGROUND)
             .padding(Insets.of(5));
 
         FlowLayout tree = Containers.verticalFlow(Sizing.content(), Sizing.content());
@@ -162,17 +163,7 @@ public class ViewClassesScreen extends BaseOwoScreen<FlowLayout> {
     }
 
     private FlowLayout makeRecipeRow(String name, String fullPath) {
-        var row = Containers.horizontalFlow(Sizing.content(), Sizing.content());
-        var fileLabel = Components.label(Text.literal(name));
-
-        row.child(fileLabel);
-        row.mouseEnter().subscribe(
-            () -> row.surface(Surface.flat(0x80ffffff)));
-
-        row.mouseLeave().subscribe(
-            () -> row.surface(Surface.BLANK));
-
-        row.mouseDown().subscribe((mouseX, mouseY, button) -> {
+        return GuiUtil.makeRecipeRow(name, (row, label, mouseX, mouseY, button) -> {
             if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
                 UISounds.playInteractionSound();
 
@@ -181,10 +172,10 @@ public class ViewClassesScreen extends BaseOwoScreen<FlowLayout> {
                 ForkJoinPool.commonPool().execute(() -> {
                     try {
                         var text = decompiler.decompileClass(Class.forName(
-                            decompiler.unmapClass(
-                                fullPath
-                                    .replace(".class", "")
-                                    .replace('/', '.')))
+                                decompiler.unmapClass(
+                                        fullPath
+                                                .replace(".class", "")
+                                                .replace('/', '.')))
                         );
 
                         client.execute(() -> {
@@ -212,49 +203,47 @@ public class ViewClassesScreen extends BaseOwoScreen<FlowLayout> {
                 String filename = fullPath.substring(fullPath.lastIndexOf('/') + 1);
 
                 GuiUtil.contextMenu(row, mouseX, mouseY)
-                    .button(Text.translatable("text.gadget.save_as_java"), unused -> {
-                        String path = DialogUtil.saveFileDialog(
-                            "Save as .java",
-                            filename.replace(".class", ".java"),
-                            List.of("*.java"),
-                            "Java source files"
-                        );
+                        .button(Text.translatable("text.gadget.save_as_java"), unused -> {
+                            String path = DialogUtil.saveFileDialog(
+                                    "Save as .java",
+                                    filename.replace(".class", ".java"),
+                                    List.of("*.java"),
+                                    "Java source files"
+                            );
 
-                        if (path != null) {
-                            try {
-                                Files.writeString(Path.of(path), currentFileContents, StandardCharsets.UTF_8);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
+                            if (path != null) {
+                                try {
+                                    Files.writeString(Path.of(path), currentFileContents, StandardCharsets.UTF_8);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
                             }
-                        }
-                    })
-                    .button(Text.translatable("text.gadget.save_as_class"), unused -> {
-                        String path = DialogUtil.saveFileDialog(
-                            "Save as .class",
-                            filename,
-                            List.of("*.class"),
-                            "JVM class files"
-                        );
+                        })
+                        .button(Text.translatable("text.gadget.save_as_class"), unused -> {
+                            String path = DialogUtil.saveFileDialog(
+                                    "Save as .class",
+                                    filename,
+                                    List.of("*.class"),
+                                    "JVM class files"
+                            );
 
-                        if (path != null) {
-                            try {
-                                contents.clearChildren();
-                                Files.write(
-                                    Path.of(path),
-                                    decompiler.getClassBytes(fullPath.replace(".class", ""))
-                                );
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
+                            if (path != null) {
+                                try {
+                                    contents.clearChildren();
+                                    Files.write(
+                                            Path.of(path),
+                                            decompiler.getClassBytes(fullPath.replace(".class", ""))
+                                    );
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
                             }
-                        }
-                    });
+                        });
 
             }
 
             return true;
         });
-
-        return row;
     }
 
     @Override

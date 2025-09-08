@@ -3,7 +3,7 @@ package io.wispforest.gadget.desc.edit;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
-public class RegistryEditType<T> implements PrimitiveEditType<T> {
+public final class RegistryEditType<T> implements PrimitiveEditType<T> {
     private final Registry<T> registry;
 
     public RegistryEditType(Registry<T> registry) {
