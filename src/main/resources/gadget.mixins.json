@@ -17,10 +17,10 @@
         "owo.ComponentMixin",
         "owo.HandshakeResponseAccessor",
         "owo.MessagePayloadAccessor",
-        "owo.ParentComponentMixin",
         "owo.ParticleSystemAccessor",
         "owo.ParticleSystemInstanceAccessor",
-        "owo.ParticleSystemPayloadAccessor"
+        "owo.ParticleSystemPayloadAccessor",
+        "owo.ReflectiveEndecBuilderMixin"
     ],
     "client": [
         "client.ChatHudAccessor",

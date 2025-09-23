@@ -13,8 +13,8 @@ public record NbtPath(String[] steps) {
         for (String element : steps) {
             if (start instanceof NbtCompound compound)
                 start = compound.get(element);
-            else if (start instanceof AbstractNbtList<?> list)
-                start = list.get(Integer.parseInt(element));
+            else if (start instanceof AbstractNbtList list)
+                start = list.method_10534(Integer.parseInt(element));
         }
 
         return start;
@@ -24,13 +24,13 @@ public record NbtPath(String[] steps) {
         for (int i = 0; i < steps.length - 1; i++) {
             if (start instanceof NbtCompound compound)
                 start = compound.get(steps[i]);
-            else if (start instanceof AbstractNbtList<?> list)
-                start = list.get(Integer.parseInt(steps[i]));
+            else if (start instanceof AbstractNbtList list)
+                start = list.method_10534(Integer.parseInt(steps[i]));
         }
 
         if (start instanceof NbtCompound compound)
             compound.put(steps[steps.length - 1], to);
-        else if (start instanceof AbstractNbtList<?> list)
+        else if (start instanceof AbstractNbtList list)
             list.setElement(Integer.parseInt(steps[steps.length - 1]), to);
     }
 
@@ -38,13 +38,13 @@ public record NbtPath(String[] steps) {
         for (int i = 0; i < steps.length - 1; i++) {
             if (start instanceof NbtCompound compound)
                 start = compound.get(steps[i]);
-            else if (start instanceof AbstractNbtList<?> list)
-                start = list.get(Integer.parseInt(steps[i]));
+            else if (start instanceof AbstractNbtList list)
+                start = list.method_10534(Integer.parseInt(steps[i]));
         }
 
         if (start instanceof NbtCompound compound)
             compound.put(steps[steps.length - 1], to);
-        else if (start instanceof AbstractNbtList<?> list)
+        else if (start instanceof AbstractNbtList list)
             list.addElement(Integer.parseInt(steps[steps.length - 1]), to);
     }
 
@@ -52,14 +52,14 @@ public record NbtPath(String[] steps) {
         for (int i = 0; i < steps.length - 1; i++) {
             if (start instanceof NbtCompound compound)
                 start = compound.get(steps[i]);
-            else if (start instanceof AbstractNbtList<?> list)
-                start = list.get(Integer.parseInt(steps[i]));
+            else if (start instanceof AbstractNbtList list)
+                start = list.method_10534(Integer.parseInt(steps[i]));
         }
 
         if (start instanceof NbtCompound compound)
             compound.remove(steps[steps.length - 1]);
-        else if (start instanceof AbstractNbtList<?> list)
-            list.remove(Integer.parseInt(steps[steps.length - 1]));
+        else if (start instanceof AbstractNbtList list)
+            list.method_10536(Integer.parseInt(steps[steps.length - 1]));
     }
 
     public NbtPath parent() {

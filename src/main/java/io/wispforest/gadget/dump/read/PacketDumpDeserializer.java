@@ -151,7 +151,7 @@ public class PacketDumpDeserializer {
 
             case PLAY ->
                 switch (side) {
-                    case SERVERBOUND -> PlayStateFactories.C2S.bind(RegistryByteBuf.makeFactory(registries));
+                    case SERVERBOUND -> PlayStateFactories.C2S.bind(RegistryByteBuf.makeFactory(registries), () -> true);
                     case CLIENTBOUND -> PlayStateFactories.S2C.bind(RegistryByteBuf.makeFactory(registries));
                 };
         };

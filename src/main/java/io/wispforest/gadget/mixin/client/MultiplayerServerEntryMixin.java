@@ -54,7 +54,7 @@ public abstract class MultiplayerServerEntryMixin {
                         () -> {
                             this.server
                                 .setStatus(
-                                    this.server.protocolVersion == SharedConstants.getGameVersion().getProtocolVersion()
+                                    this.server.protocolVersion == SharedConstants.getGameVersion().protocolVersion()
                                         ? ServerInfo.Status.SUCCESSFUL
                                         : ServerInfo.Status.INCOMPATIBLE
                                 );

@@ -35,6 +35,8 @@ public class NotificationToast implements Toast {
             root.child(Components.label(messageText));
 
         this.adapter.inflateAndMount();
+
+        // TODO: fix toasts.
     }
 
     public void register() {
@@ -48,7 +50,7 @@ public class NotificationToast implements Toast {
 
     @Override
     public void draw(DrawContext ctx, TextRenderer textRenderer, long startTime) {
-        this.adapter.render(ctx, 0, 0, client.getRenderTickCounter().getTickDelta(false));
+        this.adapter.render(ctx, 0, 0, client.getRenderTickCounter().getTickProgress(false));
     }
 
     @Override

@@ -52,6 +52,8 @@ public class ProgressToastImpl implements Toast, ProgressToast {
             .padding(Insets.of(10));
 
         this.adapter.inflateAndMount();
+
+        // TODO: fix toasts.
     }
 
     @Override
@@ -65,7 +67,7 @@ public class ProgressToastImpl implements Toast, ProgressToast {
             progressBox.horizontalSizing(Sizing.fixed((int) (value * 140 / followingTotal)));
         }
 
-        this.adapter.render(ctx, 0, 0, client.getRenderTickCounter().getTickDelta(false));
+        this.adapter.render(ctx, 0, 0, client.getRenderTickCounter().getTickProgress(false));
     }
 
     @Override

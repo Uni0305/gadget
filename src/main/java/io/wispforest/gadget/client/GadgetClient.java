@@ -10,7 +10,6 @@ import io.wispforest.gadget.client.field.FieldDataScreen;
 import io.wispforest.gadget.client.field.RemoteFieldDataSource;
 import io.wispforest.gadget.client.gui.ContextMenuScreens;
 import io.wispforest.gadget.client.gui.GadgetScreen;
-import io.wispforest.gadget.client.gui.inspector.UIInspector;
 import io.wispforest.gadget.client.log.ChatLogAppender;
 import io.wispforest.gadget.client.nbt.StackComponentDataScreen;
 import io.wispforest.gadget.client.resource.ViewResourcesScreen;
@@ -23,7 +22,6 @@ import io.wispforest.gadget.network.InspectionTarget;
 import io.wispforest.gadget.network.packet.c2s.OpenFieldDataScreenC2SPacket;
 import io.wispforest.gadget.network.packet.c2s.RequestResourceC2SPacket;
 import io.wispforest.gadget.network.packet.s2c.*;
-import io.wispforest.owo.config.ui.ConfigScreen;
 import io.wispforest.owo.config.ui.ConfigScreenProviders;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.Containers;
@@ -71,7 +69,6 @@ public class GadgetClient implements ClientModInitializer {
         KeyBindingHelper.registerKeyBinding(DUMP_KEY);
 
         ClientPacketHandlers.init();
-        UIInspector.init();
         ServerData.init();
         ContextMenuScreens.init();
         ChatLogAppender.init();
@@ -137,7 +134,7 @@ public class GadgetClient implements ClientModInitializer {
                 Entity camera = client.getCameraEntity();
                 if (camera == null) camera = client.player;
 
-                HitResult hitResult = raycast(camera, client.getRenderTickCounter().getTickDelta(false));
+                HitResult hitResult = raycast(camera, client.getRenderTickCounter().getTickProgress(false));
 
                 if (hitResult == null) return;
 
@@ -223,15 +220,6 @@ public class GadgetClient implements ClientModInitializer {
 
                     return false;
                 });
-
-            ScreenKeyboardEvents.allowKeyPress(screen).register((screen1, key, scancode, modifiers) -> {
-                if (!Screen.hasShiftDown()) return true;
-                if (!INSPECT_KEY.matchesKey(key, scancode)) return true;
-
-                UIInspector.dumpWidgetTree(screen1);
-
-                return false;
-            });
         });
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {

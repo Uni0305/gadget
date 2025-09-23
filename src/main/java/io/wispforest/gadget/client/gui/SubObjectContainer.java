@@ -150,13 +150,15 @@ public class SubObjectContainer extends FlowLayout {
 
         @Override
         public void draw(OwoUIDrawContext ctx, int mouseX, int mouseY, float partialTicks, float delta) {
-            ctx.getMatrices().push();
-            ctx.getMatrices().translate(this.x + this.width / 2f - 1, this.y + this.height / 2f - 1, 0);
-            ctx.getMatrices().multiply(RotationAxis.POSITIVE_Z.rotationDegrees(this.rotation));
-            ctx.getMatrices().translate(-(this.x + this.width / 2f - 1), -(this.y + this.height / 2f - 1), 0);
+            var matrices = ctx.getMatrices();
+
+            matrices.pushMatrix();
+            matrices.translate(this.x + this.width / 2f - 1, this.y + this.height / 2f - 1);
+            matrices.rotate((float) Math.toRadians(this.rotation));
+            matrices.translate(-(this.x + this.width / 2f - 1), -(this.y + this.height / 2f - 1));
 
             super.draw(ctx, mouseX, mouseY, partialTicks, delta);
-            ctx.getMatrices().pop();
+            matrices.popMatrix();
         }
     }
 }
