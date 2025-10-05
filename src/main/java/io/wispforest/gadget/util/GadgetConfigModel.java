@@ -20,7 +20,6 @@ public class GadgetConfigModel {
     public DumpSafetyMode dumpSafety = DumpSafetyMode.ON_EXIT;
     public boolean debugKeysInScreens = true;
     public boolean matrixStackDebugging = true;
-    public boolean uiInspector = true;
     @RestartRequired public boolean silenceStartupErrors = true;
     @PredicateConstraint("isQuiltflowerVersionValid") public String quiltflowerVersion = "LATEST";
     @PredicateConstraint("isMappingsValid") @Hook public MappingsType mappings =

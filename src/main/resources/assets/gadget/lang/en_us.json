@@ -192,8 +192,6 @@
     "text.config.gadget.option.debugKeysInScreens.tooltip": "Allows you to use F3 debug keys in any screen",
     "text.config.gadget.option.matrixStackDebugging": "MatrixStack Debugging",
     "text.config.gadget.option.matrixStackDebugging.tooltip": "Tracks pushes and pops of MatrixStacks to dump on error",
-    "text.config.gadget.option.uiInspector": "UI Inspector",
-    "text.config.gadget.option.uiInspector.tooltip": "Allows you to look around the trees of Vanilla and REI UIs",
     "text.config.gadget.option.silenceStartupErrors": "Silence Startup Errors",
     "text.config.gadget.option.silenceStartupErrors.tooltip": [
         "Silences some useless startup errors, including \n",
