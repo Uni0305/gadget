@@ -58,7 +58,7 @@ public class StackComponentDataScreen extends BaseOwoScreen<FlowLayout> {
                         currentEncodingError.set(null);
 
                         ((MergedComponentMap) stack.getComponents()).setChanges(newChanges);
-                        stack.getItem().postProcessComponents(stack);
+//                        stack.getItem().postProcessComponents(stack);
 
                         if (parent instanceof CreativeInventoryScreen) {
                             // Let it handle it.
@@ -127,14 +127,14 @@ public class StackComponentDataScreen extends BaseOwoScreen<FlowLayout> {
             addButton.mouseLeave().subscribe(
                 () -> addButton.surface(Surface.BLANK));
 
-            addButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
-                if (button != GLFW.GLFW_MOUSE_BUTTON_LEFT) return false;
+            addButton.mouseDown().subscribe((click, doubled) -> {
+                if (click.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT) return false;
 
                 UISounds.playInteractionSound();
 
                 island.typeSelector(
-                    (int) (addButton.x() + mouseX),
-                    (int) (addButton.y() + mouseY),
+                    (int) (addButton.x() + click.x()),
+                    (int) (addButton.y() + click.y()),
                     type -> island.child(new KeyAdderWidget(island, NbtPath.EMPTY, type, unused -> true)));
 
                 return true;

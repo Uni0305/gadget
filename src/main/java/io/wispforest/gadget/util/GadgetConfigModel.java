@@ -89,7 +89,6 @@ public class GadgetConfigModel {
 
     public static class InternalSettings {
         public boolean debugMatrixStackDebugging = false;
-        public boolean injectMatrixStackErrors = false;
         public boolean dumpTRMappings = false;
         public boolean dumpFieldDataRequests = false;
     }

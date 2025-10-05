@@ -18,6 +18,7 @@ import io.wispforest.owo.util.Observable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -76,8 +77,8 @@ public class OpenDumpScreen extends BaseOwoScreen<FlowLayout> {
 
                     toast.step(Text.translatable("message.gadget.progress.building_screen"));
                     OpenDumpScreen screen = new OpenDumpScreen(parent, toast, reader, path);
-                    screen.init(client, parent.width, parent.height);
-                    screen.toast = null;
+//                    screen.init(client, parent.width, parent.height);
+//                    screen.toast = null;
 
                     return screen;
                 } catch (IOException e) {
@@ -117,8 +118,8 @@ public class OpenDumpScreen extends BaseOwoScreen<FlowLayout> {
         searchBox.margins(Insets.bottom(3));
         searchBox.setMaxLength(1000);
 
-        rootComponent.keyPress().subscribe((keyCode, scanCode, modifiers) -> {
-            if (keyCode != GLFW.GLFW_KEY_F || (modifiers & GLFW.GLFW_MOD_CONTROL) == 0)
+        rootComponent.keyPress().subscribe((input) -> {
+            if (input.key() != GLFW.GLFW_KEY_F || !input.hasCtrl())
                 return false;
 
             uiAdapter.rootComponent.focusHandler().focus(
@@ -330,14 +331,14 @@ public class OpenDumpScreen extends BaseOwoScreen<FlowLayout> {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_E && (modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
+    public boolean keyPressed(KeyInput input) {
+        if (input.key() == GLFW.GLFW_KEY_E && input.hasCtrl()) {
             openExportModal();
 
             return true;
         }
 
-        if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+        if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
             for (Component rootChild : uiAdapter.rootComponent.children()) {
                 if (rootChild instanceof OverlayContainer<?> overlay && overlay.closeOnClick()) {
                     overlay.remove();
@@ -346,7 +347,7 @@ public class OpenDumpScreen extends BaseOwoScreen<FlowLayout> {
             }
         }
 
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(input);
     }
 
     private void rebuild(String searchText, long time) {

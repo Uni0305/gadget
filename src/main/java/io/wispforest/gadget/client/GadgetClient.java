@@ -33,7 +33,6 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -60,8 +59,8 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 
 public class GadgetClient implements ClientModInitializer {
-    public static final KeyBinding INSPECT_KEY = new KeyBinding("key.gadget.inspect", GLFW.GLFW_KEY_I, KeyBinding.MISC_CATEGORY);
-    public static final KeyBinding DUMP_KEY = new KeyBinding("key.gadget.dump", GLFW.GLFW_KEY_K, KeyBinding.MISC_CATEGORY);
+    public static final KeyBinding INSPECT_KEY = new KeyBinding("key.gadget.inspect", GLFW.GLFW_KEY_I, KeyBinding.Category.MISC);
+    public static final KeyBinding DUMP_KEY = new KeyBinding("key.gadget.dump", GLFW.GLFW_KEY_K, KeyBinding.Category.MISC);
 
     @Override
     public void onInitializeClient() {
@@ -203,8 +202,8 @@ public class GadgetClient implements ClientModInitializer {
 
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             if (screen instanceof HandledScreen<?> handled)
-                ScreenKeyboardEvents.allowKeyPress(screen).register((screen1, key, scancode, modifiers) -> {
-                    if (!INSPECT_KEY.matchesKey(key, scancode)) return true;
+                ScreenKeyboardEvents.allowKeyPress(screen).register((screen1, input) -> {
+                    if (!INSPECT_KEY.matchesKey(input)) return true;
 
                     double mouseX = client.mouse.getX()
                         * (double)client.getWindow().getScaledWidth() / (double)client.getWindow().getWidth();
@@ -225,12 +224,6 @@ public class GadgetClient implements ClientModInitializer {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             ReloadMappingsCommand.register(dispatcher);
             ChatLogCommand.register(dispatcher);
-        });
-
-        WorldRenderEvents.AFTER_ENTITIES.register(context -> {
-            if (Gadget.CONFIG.internalSettings.injectMatrixStackErrors() && Screen.hasShiftDown()) {
-                context.matrixStack().pop();
-            }
         });
 
         for (EntrypointContainer<GadgetClientEntrypoint> container : FabricLoader.getInstance().getEntrypointContainers(GadgetClientEntrypoint.KEY, GadgetClientEntrypoint.class)) {

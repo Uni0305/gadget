@@ -9,6 +9,7 @@ import io.wispforest.owo.ui.core.Insets;
 import io.wispforest.owo.ui.core.ParentComponent;
 import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.nbt.*;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
@@ -135,8 +136,8 @@ public class KeyAdderWidget extends FlowLayout {
         parent().removeChild(this);
     }
 
-    private boolean onNameFieldKeyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_ENTER) {
+    private boolean onNameFieldKeyPressed(KeyInput input) {
+        if (input.key() == GLFW.GLFW_KEY_ENTER) {
             if (valueField == null) {
                 commit();
             } else {
@@ -150,8 +151,8 @@ public class KeyAdderWidget extends FlowLayout {
         return false;
     }
 
-    private boolean onValueFieldKeyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_ENTER) {
+    private boolean onValueFieldKeyPressed(KeyInput input) {
+        if (input.key() == GLFW.GLFW_KEY_ENTER) {
             commit();
 
             return true;

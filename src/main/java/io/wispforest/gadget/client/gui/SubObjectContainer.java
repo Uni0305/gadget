@@ -4,6 +4,7 @@ import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.util.UISounds;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.RotationAxis;
 import org.lwjgl.glfw.GLFW;
@@ -48,7 +49,7 @@ public class SubObjectContainer extends FlowLayout {
 
         GuiUtil.hoverBlue(this.spinnyBoi);
 
-        this.spinnyBoi.mouseDown().subscribe((mouseX, mouseY, button) -> {
+        this.spinnyBoi.mouseDown().subscribe((click, doubled) -> {
             this.toggleExpansion();
             UISounds.playInteractionSound();
 
@@ -85,15 +86,15 @@ public class SubObjectContainer extends FlowLayout {
     }
 
     @Override
-    public boolean onKeyPress(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_SPACE || keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+    public boolean onKeyPress(KeyInput input) {
+        if (input.key() == GLFW.GLFW_KEY_SPACE || input.key() == GLFW.GLFW_KEY_ENTER || input.key() == GLFW.GLFW_KEY_KP_ENTER) {
             this.toggleExpansion();
 
-            super.onKeyPress(keyCode, scanCode, modifiers);
+            super.onKeyPress(input);
             return true;
         }
 
-        return super.onKeyPress(keyCode, scanCode, modifiers);
+        return super.onKeyPress(input);
     }
 
     @Override

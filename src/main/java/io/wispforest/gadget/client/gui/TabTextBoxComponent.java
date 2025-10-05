@@ -2,6 +2,7 @@ package io.wispforest.gadget.client.gui;
 
 import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.core.Sizing;
+import net.minecraft.client.input.KeyInput;
 import org.lwjgl.glfw.GLFW;
 
 public class TabTextBoxComponent extends TextBoxComponent {
@@ -10,14 +11,14 @@ public class TabTextBoxComponent extends TextBoxComponent {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_TAB) {
+    public boolean keyPressed(KeyInput input) {
+        if (input.key() == GLFW.GLFW_KEY_TAB) {
             // Pass the event to the root component.
-            root().onKeyPress(keyCode, scanCode, modifiers);
+            root().onKeyPress(input);
 
             return true;
         }
 
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(input);
     }
 }

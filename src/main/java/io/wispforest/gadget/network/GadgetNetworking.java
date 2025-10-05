@@ -43,7 +43,7 @@ public final class GadgetNetworking {
             }
 
 
-            Object target = packet.target().resolve(access.player().getWorld());
+            Object target = packet.target().resolve(access.player().getEntityWorld());
 
             if (target == null) {
                 access.player().sendMessage(Text.translatable("message.gadget.fail.notfound"), true);
@@ -69,7 +69,7 @@ public final class GadgetNetworking {
             }
 
             try {
-                Object target = packet.target().resolve(access.player().getWorld());
+                Object target = packet.target().resolve(access.player().getEntityWorld());
 
                 if (target == null) {
                     MutableText errText = Text.translatable("message.gadget.fail.notfound");
@@ -98,7 +98,7 @@ public final class GadgetNetworking {
             }
 
 
-            Object target = packet.target().resolve(access.player().getWorld());
+            Object target = packet.target().resolve(access.player().getEntityWorld());
 
             if (target == null) {
                 access.player().sendMessage(Text.translatable("message.gadget.fail.notfound"), true);
@@ -114,7 +114,7 @@ public final class GadgetNetworking {
                 return;
             }
 
-            Object target = packet.target().resolve(access.player().getWorld());
+            Object target = packet.target().resolve(access.player().getEntityWorld());
 
             if (target == null) {
                 access.player().sendMessage(Text.translatable("message.gadget.fail.notfound"), true);

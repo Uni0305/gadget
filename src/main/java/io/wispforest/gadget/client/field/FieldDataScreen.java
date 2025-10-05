@@ -23,6 +23,7 @@ import io.wispforest.owo.ui.container.ScrollContainer;
 import io.wispforest.owo.ui.core.*;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
@@ -119,8 +120,8 @@ public class FieldDataScreen extends BaseOwoScreen<FlowLayout> {
         verticalFlowLayout
             .child(search
                 .positioning(Positioning.relative(0, 100)));
-        verticalFlowLayout.keyPress().subscribe((keyCode, scanCode, modifiers) -> {
-            if (keyCode != GLFW.GLFW_KEY_F || (modifiers & GLFW.GLFW_MOD_CONTROL) == 0)
+        verticalFlowLayout.keyPress().subscribe((input) -> {
+            if (input.key() != GLFW.GLFW_KEY_F || !input.hasCtrl())
                 return false;
 
             uiAdapter.rootComponent.focusHandler().focus(
@@ -228,14 +229,14 @@ public class FieldDataScreen extends BaseOwoScreen<FlowLayout> {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_E && (modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
+    public boolean keyPressed(KeyInput input) {
+        if (input.key() == GLFW.GLFW_KEY_E && input.hasCtrl()) {
             openExportModal();
 
             return true;
         }
 
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(input);
     }
 
     public FieldDataSource dataSource() {

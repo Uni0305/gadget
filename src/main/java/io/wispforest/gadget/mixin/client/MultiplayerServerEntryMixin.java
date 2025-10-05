@@ -6,6 +6,7 @@ import io.wispforest.gadget.client.dump.DumpPrimer;
 import io.wispforest.gadget.client.gui.ContextMenuScreens;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerServerListWidget;
 import net.minecraft.client.network.ServerInfo;
@@ -33,16 +34,15 @@ public abstract class MultiplayerServerEntryMixin {
     @Shadow protected abstract void update();
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void onRightClick(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
-        if (button != GLFW.GLFW_MOUSE_BUTTON_RIGHT) return;
+    private void onRightClick(Click click, boolean doubled, CallbackInfoReturnable<Boolean> cir) {
+        if (click.button() != GLFW.GLFW_MOUSE_BUTTON_RIGHT) return;
         if (!Gadget.CONFIG.rightClickDump()) return;
 
-        ContextMenuScreens.contextMenuAt(screen, mouseX, mouseY)
+        ContextMenuScreens.contextMenuAt(screen, click.x(), click.y())
             .button(Text.translatable("text.gadget.join_with_dump"), dropdown2 -> {
                 DumpPrimer.isPrimed = true;
 
-                this.screen.select((MultiplayerServerListWidget.ServerEntry)(Object) this);
-                this.screen.connect();
+                this.screen.connect(server);
             })
             .button(Text.translatable("text.gadget.query_with_dump"), dropdown2 -> {
                 ClientPacketDumper.start(false);

@@ -9,6 +9,7 @@ import io.wispforest.owo.ui.core.Insets;
 import io.wispforest.owo.ui.core.Sizing;
 import io.wispforest.owo.ui.core.Surface;
 import io.wispforest.owo.util.Observable;
+import net.minecraft.client.gui.Click;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
@@ -78,8 +79,8 @@ public class SaveFilePathComponent extends FlowLayout {
     }
 
     @Override
-    public boolean onMouseDown(double mouseX, double mouseY, int button) {
-        if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+    public boolean onMouseDown(Click click, boolean doubled) {
+        if (click.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
             Thread thread = new Thread(() -> {
                 String selected = DialogUtil.saveFileDialog(
                     title,
@@ -98,7 +99,7 @@ public class SaveFilePathComponent extends FlowLayout {
             return true;
         }
 
-        return super.onMouseDown(mouseX, mouseY, button);
+        return super.onMouseDown(click, doubled);
     }
 
     public Observable<String> path() {

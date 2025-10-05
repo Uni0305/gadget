@@ -8,6 +8,7 @@ import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Sizing;
 import io.wispforest.owo.ui.util.UISounds;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -49,8 +50,8 @@ public class PrimitiveEditorWidget extends FlowLayout {
         child(editLabel);
     }
 
-    private boolean editFieldKeyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_ENTER) {
+    private boolean editFieldKeyPressed(KeyInput input) {
+        if (input.key() == GLFW.GLFW_KEY_ENTER) {
             UISounds.playButtonSound();
 
             path.set(island.data, parser.apply(editField.getText()));

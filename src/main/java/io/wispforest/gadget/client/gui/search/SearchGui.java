@@ -68,8 +68,8 @@ public class SearchGui extends FlowLayout {
             matchIndicator.text(Text.empty());
         });
 
-        searchBox.keyPress().subscribe((keyCode, scanCode, modifiers) -> {
-            if (keyCode != GLFW.GLFW_KEY_ENTER) return false;
+        searchBox.keyPress().subscribe((input) -> {
+            if (input.key() != GLFW.GLFW_KEY_ENTER) return false;
 
             var query = searchBox.getText().toLowerCase(Locale.ROOT);
             if (query.isBlank()) return false;

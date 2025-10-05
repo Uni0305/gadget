@@ -16,10 +16,10 @@ public class FunnyItem extends Item {
 
     @Override
     public Text getName(ItemStack stack) {
-        if (Screen.hasShiftDown()) {
-            // todo: fix this.
-//            stack.getOrCreateNbt().putString("owl", "yay");
-        }
+//        if (Screen.hasShiftDown()) {
+//            // todo: fix this.
+////            stack.getOrCreateNbt().putString("owl", "yay");
+//        }
 
         return super.getName(stack);
     }

@@ -30,12 +30,12 @@ public class SidebarBuilder {
     public void button(Text icon, @Nullable Text tooltip, OnPressHandler handler) {
         Button button = new Button(icon, tooltip);
 
-        button.mouseDown().subscribe((mouseX, mouseY, mouseButton) -> {
-            if (mouseButton != GLFW.GLFW_MOUSE_BUTTON_LEFT) return false;
+        button.mouseDown().subscribe((click, doubled) -> {
+            if (click.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT) return false;
 
             UISounds.playInteractionSound();
 
-            handler.onPress((int) mouseX, (int) mouseY);
+            handler.onPress((int) click.x(), (int) click.y());
 
             return true;
         });

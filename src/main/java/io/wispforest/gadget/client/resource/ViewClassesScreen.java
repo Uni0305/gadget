@@ -19,6 +19,8 @@ import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.util.UISounds;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.input.KeyInput;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
@@ -64,7 +66,7 @@ public class ViewClassesScreen extends BaseOwoScreen<FlowLayout> {
     public static void openWithProgress(Screen parent) {
         ProgressToast toast = ProgressToast.create(Text.translatable("message.gadget.loading_classes"));
         MinecraftClient client = MinecraftClient.getInstance();
-        boolean showAll = Screen.hasShiftDown();
+        boolean showAll = InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT);
 
         toast.follow(
             QuiltflowerManager.ensureInstalled(toast)
@@ -136,8 +138,8 @@ public class ViewClassesScreen extends BaseOwoScreen<FlowLayout> {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_S && (modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
+    public boolean keyPressed(KeyInput input) {
+        if (input.key() == GLFW.GLFW_KEY_S && input.hasCtrl()) {
             if (currentFileContents == null) return false;
 
             String path = DialogUtil.saveFileDialog(
@@ -158,7 +160,7 @@ public class ViewClassesScreen extends BaseOwoScreen<FlowLayout> {
             return true;
         }
 
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(input);
     }
 
     private FlowLayout makeRecipeRow(String name, String fullPath) {
@@ -172,8 +174,8 @@ public class ViewClassesScreen extends BaseOwoScreen<FlowLayout> {
         row.mouseLeave().subscribe(
             () -> row.surface(Surface.BLANK));
 
-        row.mouseDown().subscribe((mouseX, mouseY, button) -> {
-            if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+        row.mouseDown().subscribe((click, doubled) -> {
+            if (click.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
                 UISounds.playInteractionSound();
 
                 contents.clearChildren();
@@ -211,7 +213,7 @@ public class ViewClassesScreen extends BaseOwoScreen<FlowLayout> {
             } else {
                 String filename = fullPath.substring(fullPath.lastIndexOf('/') + 1);
 
-                GuiUtil.contextMenu(row, mouseX, mouseY)
+                GuiUtil.contextMenu(row, click.x(), click.y())
                     .button(Text.translatable("text.gadget.save_as_java"), unused -> {
                         String path = DialogUtil.saveFileDialog(
                             "Save as .java",

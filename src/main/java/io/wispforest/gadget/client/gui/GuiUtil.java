@@ -11,6 +11,7 @@ import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.util.UISounds;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.StyleSpriteSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.apache.commons.lang3.StringUtils;
@@ -38,8 +39,8 @@ public final class GuiUtil {
         hoverBlue(label);
         label.cursorStyle(CursorStyle.HAND);
 
-        label.mouseDown().subscribe((mouseX, mouseY, button) -> {
-            if (button != GLFW.GLFW_MOUSE_BUTTON_LEFT) return false;
+        label.mouseDown().subscribe((click, doubled) -> {
+            if (click.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT) return false;
 
             UISounds.playButtonSound();
             onPressed.run();
@@ -52,11 +53,11 @@ public final class GuiUtil {
         hoverBlue(label);
         label.cursorStyle(CursorStyle.HAND);
 
-        label.mouseDown().subscribe((mouseX, mouseY, button) -> {
-            if (button != GLFW.GLFW_MOUSE_BUTTON_LEFT) return false;
+        label.mouseDown().subscribe((click, doubled) -> {
+            if (click.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT) return false;
 
             UISounds.playButtonSound();
-            onPressed.accept(mouseX, mouseY);
+            onPressed.accept(click.x(), click.y());
 
             return true;
         });
@@ -80,8 +81,9 @@ public final class GuiUtil {
         var dropdown = Components.dropdown(Sizing.content());
 
         dropdown
-            .positioning(Positioning.absolute((int) mouseX + at.x(), (int) mouseY + at.y()))
-            .zIndex(100);
+            .positioning(Positioning.absolute((int) mouseX + at.x(), (int) mouseY + at.y()));
+        // TODO: figure out what to do with this.
+//            .zIndex(100);
 
         ((ParentComponent) dropdown.children().get(0)).padding(Insets.of(3));
 
@@ -123,9 +125,9 @@ public final class GuiUtil {
                 Text.literal("")
                     .append(Text.literal(StringUtils.leftPad(Integer.toString(i), maxWidth) + " ")
                         .formatted(Formatting.GRAY)
-                        .styled(x -> x.withFont(Gadget.id("monocraft"))))
+                        .styled(x -> x.withFont(new StyleSpriteSource.Font(Gadget.id("monocraft")))))
                     .append(Text.literal(line.replace("\t", "    "))
-                        .styled(x -> x.withFont(Gadget.id("monocraft")))))
+                        .styled(x -> x.withFont(new StyleSpriteSource.Font(Gadget.id("monocraft"))))))
                 .horizontalSizing(Sizing.fill(99)));
 
             i++;
@@ -163,7 +165,7 @@ public final class GuiUtil {
             }
 
             var label = Components.label(Text.literal(line.toString())
-                    .styled(x -> x.withFont(Gadget.id("monocraft"))))
+                    .styled(x -> x.withFont(new StyleSpriteSource.Font(Gadget.id("monocraft")))))
                 .margins(Insets.bottom(3));
 
             if (view.children().size() > 10 && doEllipsis)
