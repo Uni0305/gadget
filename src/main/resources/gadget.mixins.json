@@ -20,7 +20,6 @@
         "owo.ParticleSystemAccessor",
         "owo.ParticleSystemInstanceAccessor",
         "owo.ParticleSystemPayloadAccessor",
-        "owo.ReflectiveEndecBuilderMixin"
     ],
     "client": [
         "client.ChatHudAccessor",
